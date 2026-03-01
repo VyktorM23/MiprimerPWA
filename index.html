@@ -8,75 +8,50 @@
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <style>
-        #installButton {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            padding: 15px;
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 10000;
-        }
-        
-        #installButton:hover {
-            background-color: #0b5ed7;
-        }
-        
-        .info-box {
-            background-color: #e7f3ff;
-            border-left: 4px solid #0d6efd;
-            padding: 10px;
-            margin: 20px 0;
-            text-align: left;
-            border-radius: 4px;
-        }
-    </style>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192x192.png">
 </head>
 <body>
-    <h1>Mi Primera PWA</h1>
-    <p>Esta aplicación funciona sin internet</p>
+    <h1>📱 Mi Primera PWA</h1>
+    <p>Esta aplicación funciona sin internet y se puede instalar en tu celular</p>
     
-    <div class="info-box">
-        <strong>📱 Estado:</strong><br>
-        - Service Worker: <span id="swStatus">Verificando...</span><br>
-        - Modo: <span id="modeStatus">Navegador</span>
+    <div class="status-box">
+        <div class="status-item">
+            <span class="status-label">Estado PWA:</span>
+            <span class="status-value" id="pwaStatus">Verificando...</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Service Worker:</span>
+            <span class="status-value" id="swStatus">Verificando...</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Modo:</span>
+            <span class="status-value" id="modeStatus">Navegador</span>
+        </div>
     </div>
-    
-    <button id="installButton" onclick="installPWA()">
-        📲 Instalar aplicación
-    </button>
     
     <script src="app.js"></script>
     
     <script>
-        // Verificar modo de ejecución
+        // Actualizar estados
         if (window.matchMedia('(display-mode: standalone)').matches) {
-            document.getElementById('modeStatus').textContent = 'Standalone (App)';
-            document.getElementById('modeStatus').style.color = 'green';
+            document.getElementById('modeStatus').textContent = 'App Instalada';
+            document.getElementById('modeStatus').className = 'instalado';
+            document.getElementById('pwaStatus').textContent = '✅ Instalada';
+            document.getElementById('pwaStatus').className = 'instalado';
         } else {
             document.getElementById('modeStatus').textContent = 'Navegador';
-            document.getElementById('modeStatus').style.color = 'blue';
+            document.getElementById('modeStatus').className = 'no-instalado';
+            document.getElementById('pwaStatus').textContent = '🔄 Instalable';
+            document.getElementById('pwaStatus').className = 'no-instalado';
         }
         
-        // Verificar Service Worker
         if (navigator.serviceWorker) {
             navigator.serviceWorker.getRegistrations().then(regs => {
-                if (regs.length > 0) {
-                    document.getElementById('swStatus').textContent = '✅ Activo';
-                    document.getElementById('swStatus').style.color = 'green';
-                } else {
-                    document.getElementById('swStatus').textContent = '❌ No registrado';
-                    document.getElementById('swStatus').style.color = 'red';
-                }
+                document.getElementById('swStatus').textContent = 
+                    regs.length > 0 ? '✅ Activo' : '❌ Inactivo';
+                document.getElementById('swStatus').className = 
+                    regs.length > 0 ? 'instalado' : 'no-instalado';
             });
         }
     </script>
