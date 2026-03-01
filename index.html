@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- Agregar librería para escáner QR -->
-    <script src="https://unpkg.com/html5-qrcode@2.2.0/minified/html5-qrcode.min.js"></script>
+    <!-- Librería para escáner QR -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.2.0/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <!-- Pantalla principal -->
@@ -44,7 +44,8 @@
             <button id="closeScanner" class="close-scanner-btn">✕</button>
             <h2>Escanear Código QR</h2>
         </div>
-        <div id="reader" class="qr-reader-fullscreen"></div>
+        <!-- Contenedor específico para el escáner -->
+        <div id="qr-reader" style="width: 100%; height: calc(100% - 100px);"></div>
         <div class="scanner-footer">
             <p>Coloca el código QR dentro del recuadro</p>
         </div>
@@ -57,6 +58,7 @@
             <h3>📄 Información del QR</h3>
             <div id="qrResult" class="qr-result"></div>
             <button id="copyResult" class="copy-btn">📋 Copiar</button>
+            <button id="closeResult" class="copy-btn" style="background-color: #6c757d; margin-top: 10px;">Cerrar</button>
         </div>
     </div>
 

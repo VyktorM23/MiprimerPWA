@@ -384,3 +384,43 @@ p {
         height: 220px;
     }
 }
+/* Agrega esta regla al final de tu style.css */
+#qr-reader {
+    width: 100% !important;
+    height: 100% !important;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+#qr-reader__scan_region {
+    width: 100% !important;
+    height: 100% !important;
+    background: #000;
+}
+
+#qr-reader__dashboard {
+    display: none !important;
+}
+
+/* Overlay del recuadro de escaneo */
+#qr-reader__scan_region::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    border: 3px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 1001;
+}
