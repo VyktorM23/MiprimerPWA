@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Primera PWA</title>
+    <title>Mi Primera PWA - Escáner QR</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
+    <!-- Agregar librería para escáner QR -->
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
-    <h1>📱 Mi Primera PWA</h1>
-    <p>Esta aplicación funciona sin internet y se puede instalar en tu celular</p>
+    <h1>📱 Escáner QR PWA</h1>
+    <p>Esta aplicación funciona sin internet y tiene escáner QR</p>
     
     <div class="status-box">
         <div class="status-item">
@@ -29,6 +31,25 @@
             <span class="status-value" id="modeStatus">Navegador</span>
         </div>
     </div>
+
+    <!-- Botón para escanear QR -->
+    <button id="scanButton" class="scan-btn">📷 ESCANEAR QR</button>
+
+    <!-- Contenedor para el escáner -->
+    <div id="reader" style="display: none;"></div>
+
+    <!-- Modal para mostrar resultado -->
+    <div id="resultModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>📄 Información del QR</h3>
+            <div id="qrResult" class="qr-result"></div>
+            <button id="copyResult" class="copy-btn">📋 Copiar</button>
+        </div>
+    </div>
+
+    <!-- Mensaje de error/success -->
+    <div id="scanMessage" class="scan-message"></div>
     
     <script src="app.js"></script>
     
