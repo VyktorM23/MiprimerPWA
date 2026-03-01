@@ -1,4 +1,4 @@
-// app.js mejorado con escáner QR
+// app.js mejorado con escáner QR fullscreen
 let deferredPrompt;
 let html5QrCode = null;
 let isScanning = false;
@@ -12,7 +12,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 function mostrarBotonInstalacion() {
-    if (!document.getElementById('installButton')) {
+    if (!document.getElementById('installButton') && !window.matchMedia('(display-mode: standalone)').matches) {
         const btn = document.createElement('button');
         btn.id = 'installButton';
         btn.textContent = '📲 Instalar App';
@@ -79,17 +79,20 @@ window.addEventListener('appinstalled', (e) => {
     document.getElementById('installButton')?.remove();
 });
 
-// ========== FUNCIONALIDAD DEL ESCÁNER QR ==========
+// ========== FUNCIONALIDAD DEL ESCÁNER QR FULLSCREEN ==========
 
 document.addEventListener('DOMContentLoaded', function() {
     const scanButton = document.getElementById('scanButton');
-    const reader = document.getElementById('reader');
+    const closeScannerBtn = document.getElementById('closeScanner');
     const modal = document.getElementById('resultModal');
     const closeBtn = document.querySelector('.close');
     const copyBtn = document.getElementById('copyResult');
     
-    // Configurar botón de escaneo
-    scanButton.addEventListener('click', toggleScanner);
+    // Abrir escáner
+    scanButton.addEventListener('click', abrirScanner);
+    
+    // Cerrar escáner
+    closeScannerBtn.addEventListener('click', cerrarScanner);
     
     // Cerrar modal
     closeBtn.addEventListener('click', function() {
@@ -112,74 +115,108 @@ document.addEventListener('DOMContentLoaded', function() {
             mostrarMensaje('Error al copiar', 'error');
         });
     });
+    
+    // Prevenir que el scroll de fondo cuando el escáner está abierto
+    document.addEventListener('touchmove', function(e) {
+        if (document.getElementById('scannerScreen').style.display === 'flex') {
+            e.preventDefault();
+        }
+    }, { passive: false });
 });
 
-function toggleScanner() {
-    const reader = document.getElementById('reader');
-    const scanButton = document.getElementById('scanButton');
+function abrirScanner() {
+    const mainScreen = document.getElementById('mainScreen');
+    const scannerScreen = document.getElementById('scannerScreen');
     
-    if (!isScanning) {
-        // Iniciar escáner
-        reader.style.display = 'block';
-        scanButton.textContent = '❌ CERRAR ESCÁNER';
-        scanButton.style.background = 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)';
+    // Ocultar pantalla principal y mostrar escáner
+    mainScreen.style.display = 'none';
+    scannerScreen.style.display = 'flex';
+    
+    // Iniciar escáner después de un pequeño retraso para que el DOM se actualice
+    setTimeout(() => {
         iniciarScanner();
-    } else {
-        // Detener escáner
-        detenerScanner();
-        reader.style.display = 'none';
-        scanButton.textContent = '📷 ESCANEAR QR';
-        scanButton.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-    }
+    }, 100);
+}
+
+function cerrarScanner() {
+    const mainScreen = document.getElementById('mainScreen');
+    const scannerScreen = document.getElementById('scannerScreen');
+    
+    // Detener escáner
+    detenerScanner();
+    
+    // Mostrar pantalla principal y ocultar escáner
+    mainScreen.style.display = 'flex';
+    scannerScreen.style.display = 'none';
 }
 
 function iniciarScanner() {
     const reader = document.getElementById('reader');
     
-    if (!html5QrCode) {
-        html5QrCode = new Html5Qrcode("reader");
-    }
+    // Limpiar el contenedor
+    reader.innerHTML = '';
+    
+    // Crear nueva instancia del escáner
+    html5QrCode = new Html5Qrcode("reader");
     
     const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-        // Detener escáner automáticamente al leer un código
+        console.log("QR detectado:", decodedText);
+        
+        // Vibrar si está disponible (solo dispositivos móviles)
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+        
+        // Detener escáner
         detenerScanner();
         
-        // Mostrar resultado
-        mostrarResultado(decodedText);
+        // Cerrar pantalla de escáner
+        cerrarScanner();
         
-        // Ocultar escáner
-        document.getElementById('reader').style.display = 'none';
-        document.getElementById('scanButton').textContent = '📷 ESCANEAR QR';
-        document.getElementById('scanButton').style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        // Mostrar resultado
+        setTimeout(() => {
+            mostrarResultado(decodedText);
+        }, 300);
     };
     
     const config = {
         fps: 10,
         qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0
+        aspectRatio: 1.0,
+        formatsToSupport: [
+            Html5QrcodeScannerQrCodeFormat.QR_CODE,
+            Html5QrcodeScannerQrCodeFormat.CODE_128,
+            Html5QrcodeScannerQrCodeFormat.CODE_39,
+            Html5QrcodeScannerQrCodeFormat.EAN_13,
+            Html5QrcodeScannerQrCodeFormat.EAN_8
+        ]
     };
     
     html5QrCode.start(
-        { facingMode: "environment" }, 
+        { facingMode: "environment" }, // Usar cámara trasera
         config,
         qrCodeSuccessCallback,
         (errorMessage) => {
             // Ignorar errores de escaneo (son normales)
+            // console.log(errorMessage);
         }
-    ).catch((err) => {
+    ).then(() => {
+        console.log("Escáner iniciado correctamente");
+        isScanning = true;
+    }).catch((err) => {
         console.error("Error al iniciar escáner:", err);
-        mostrarMensaje('Error al acceder a la cámara', 'error');
-        toggleScanner();
+        mostrarMensaje('Error al acceder a la cámara. Asegúrate de haber dado permisos.', 'error');
+        cerrarScanner();
     });
-    
-    isScanning = true;
 }
 
 function detenerScanner() {
     if (html5QrCode && isScanning) {
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
+            html5QrCode = null;
             isScanning = false;
+            console.log("Escáner detenido");
         }).catch((err) => {
             console.error("Error al detener escáner:", err);
         });
@@ -194,14 +231,24 @@ function mostrarResultado(texto) {
     if (esURL(texto)) {
         qrResult.innerHTML = `
             <p><strong>🔗 URL Detectada:</strong></p>
-            <p>${texto}</p>
-            <a href="${texto}" target="_blank" class="copy-btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">🌐 Abrir enlace</a>
+            <p style="word-break: break-all;">${texto}</p>
+            <a href="${texto}" target="_blank" class="copy-btn" style="display: inline-block; margin-top: 10px; text-decoration: none; background-color: #0d6efd;">🌐 Abrir enlace</a>
         `;
     } else {
-        qrResult.innerHTML = `
-            <p><strong>📄 Contenido:</strong></p>
-            <p>${texto}</p>
-        `;
+        // Intentar detectar si es JSON
+        try {
+            const jsonObj = JSON.parse(texto);
+            qrResult.innerHTML = `
+                <p><strong>📋 JSON Detectado:</strong></p>
+                <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto;">${JSON.stringify(jsonObj, null, 2)}</pre>
+            `;
+        } catch (e) {
+            // Texto plano
+            qrResult.innerHTML = `
+                <p><strong>📄 Contenido:</strong></p>
+                <p style="word-break: break-all;">${texto}</p>
+            `;
+        }
     }
     
     modal.style.display = 'flex';
@@ -209,8 +256,8 @@ function mostrarResultado(texto) {
 
 function esURL(string) {
     try {
-        new URL(string);
-        return true;
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
     } catch (_) {
         return false;
     }
@@ -227,9 +274,9 @@ function mostrarMensaje(texto, tipo) {
     }, 3000);
 }
 
-// Limpiar al salir de la página
-window.addEventListener('beforeunload', function() {
-    if (isScanning) {
-        detenerScanner();
+// Prevenir que el navegador recargue al hacer swipe en el escáner
+window.addEventListener('touchstart', (e) => {
+    if (document.getElementById('scannerScreen').style.display === 'flex') {
+        e.preventDefault();
     }
-});
+}, { passive: false });

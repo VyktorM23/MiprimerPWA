@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mi Primera PWA - Escáner QR</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
@@ -14,29 +14,41 @@
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
-    <h1>📱 Escáner QR PWA</h1>
-    <p>Esta aplicación funciona sin internet y tiene escáner QR</p>
-    
-    <div class="status-box">
-        <div class="status-item">
-            <span class="status-label">Estado PWA:</span>
-            <span class="status-value" id="pwaStatus">Verificando...</span>
+    <!-- Pantalla principal -->
+    <div id="mainScreen" class="main-screen">
+        <h1>📱 Escáner QR PWA</h1>
+        <p>Esta aplicación funciona sin internet y tiene escáner QR</p>
+        
+        <div class="status-box">
+            <div class="status-item">
+                <span class="status-label">Estado PWA:</span>
+                <span class="status-value" id="pwaStatus">Verificando...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Service Worker:</span>
+                <span class="status-value" id="swStatus">Verificando...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Modo:</span>
+                <span class="status-value" id="modeStatus">Navegador</span>
+            </div>
         </div>
-        <div class="status-item">
-            <span class="status-label">Service Worker:</span>
-            <span class="status-value" id="swStatus">Verificando...</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Modo:</span>
-            <span class="status-value" id="modeStatus">Navegador</span>
-        </div>
+
+        <!-- Botón para escanear QR -->
+        <button id="scanButton" class="scan-btn">📷 ESCANEAR QR</button>
     </div>
 
-    <!-- Botón para escanear QR -->
-    <button id="scanButton" class="scan-btn">📷 ESCANEAR QR</button>
-
-    <!-- Contenedor para el escáner -->
-    <div id="reader" style="display: none;"></div>
+    <!-- Pantalla del escáner (oculta inicialmente) -->
+    <div id="scannerScreen" class="scanner-screen" style="display: none;">
+        <div class="scanner-header">
+            <button id="closeScanner" class="close-scanner-btn">✕</button>
+            <h2>Escanear Código QR</h2>
+        </div>
+        <div id="reader" class="qr-reader-fullscreen"></div>
+        <div class="scanner-footer">
+            <p>Coloca el código QR dentro del recuadro</p>
+        </div>
+    </div>
 
     <!-- Modal para mostrar resultado -->
     <div id="resultModal" class="modal" style="display: none;">
