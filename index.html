@@ -3,38 +3,45 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PWA de Prueba</title>
-        <link rel="manifest" href="manifest.json">
-        <link rel="stylesheet" href="style.css">
-        <!-- Meta tags para iOS -->
+        <title>Mi Primera PWA</title>
+        <link rel="manifest" href="/MiprimerPWA/manifest.json">
+        <link rel="stylesheet" href="/MiprimerPWA/style.css">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="apple-mobile-web-app-title" content="PWA">
+        <meta name="apple-mobile-web-app-title" content="Mi PWA">
     </head>
     <body>
-        <h1>PWA de Prueba</h1>
+        <h1>Mi Primera PWA</h1>
         <p>Esta aplicación funciona incluso sin internet.</p>
+        <p>URL: <span id="url"></span></p>
         
-        <!-- Agrega un botón para depuración -->
         <button onclick="verificarServiceWorker()">Verificar Service Worker</button>
         <div id="mensaje"></div>
         
-        <script src="app.js"></script>
+        <script src="/MiprimerPWA/app.js"></script>
         <script>
+            document.getElementById('url').textContent = window.location.href;
+            
             function verificarServiceWorker() {
                 const div = document.getElementById('mensaje');
                 if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then(registrations => {
                         if (registrations.length > 0) {
-                            div.innerHTML = 'Service Worker registrado: ' + registrations.length;
+                            div.innerHTML = '✅ Service Worker registrado: ' + registrations.length;
                             div.style.color = 'green';
+                            
+                            // Mostrar detalles
+                            registrations.forEach(reg => {
+                                console.log('Scope:', reg.scope);
+                                console.log('Activo:', reg.active ? 'Sí' : 'No');
+                            });
                         } else {
-                            div.innerHTML = 'No hay Service Worker registrado';
+                            div.innerHTML = '❌ No hay Service Worker registrado';
                             div.style.color = 'red';
                         }
                     });
                 } else {
-                    div.innerHTML = 'Service Worker no soportado';
+                    div.innerHTML = '❌ Service Worker no soportado';
                     div.style.color = 'red';
                 }
             }
