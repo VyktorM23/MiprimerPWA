@@ -1,0 +1,9 @@
+{
+    "name": "Mi PWA",
+    "short_name": "PWA",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#0d6efd",
+    "icons": []
+}
