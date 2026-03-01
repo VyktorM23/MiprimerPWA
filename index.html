@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PWA de Prueba</title>
+        <link rel="manifest" href="manifest.json">
+        <link rel="stylesheet" href="style.css">
+        <!-- Meta tags para iOS -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="PWA">
+    </head>
+    <body>
+        <h1>PWA de Prueba</h1>
+        <p>Esta aplicación funciona incluso sin internet.</p>
+        
+        <!-- Agrega un botón para depuración -->
+        <button onclick="verificarServiceWorker()">Verificar Service Worker</button>
+        <div id="mensaje"></div>
+        
+        <script src="app.js"></script>
+        <script>
+            function verificarServiceWorker() {
+                const div = document.getElementById('mensaje');
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        if (registrations.length > 0) {
+                            div.innerHTML = 'Service Worker registrado: ' + registrations.length;
+                            div.style.color = 'green';
+                        } else {
+                            div.innerHTML = 'No hay Service Worker registrado';
+                            div.style.color = 'red';
+                        }
+                    });
+                } else {
+                    div.innerHTML = 'Service Worker no soportado';
+                    div.style.color = 'red';
+                }
+            }
+        </script>
+    </body>
+</html>
