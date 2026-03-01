@@ -1,4 +1,4 @@
-// app.js mejorado con escáner QR fullscreen
+// app.js mejorado con escáner QR fullscreen - VERSIÓN CORREGIDA
 let deferredPrompt;
 let html5QrCode = null;
 let isScanning = false;
@@ -82,22 +82,34 @@ window.addEventListener('appinstalled', (e) => {
 // ========== FUNCIONALIDAD DEL ESCÁNER QR FULLSCREEN ==========
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado, inicializando eventos...');
+    
     const scanButton = document.getElementById('scanButton');
     const closeScannerBtn = document.getElementById('closeScanner');
     const modal = document.getElementById('resultModal');
     const closeBtn = document.querySelector('.close');
     const copyBtn = document.getElementById('copyResult');
     
-    // Abrir escáner
-    scanButton.addEventListener('click', abrirScanner);
+    // Verificar que los elementos existen
+    if (scanButton) {
+        console.log('Botón de escanear encontrado');
+        scanButton.addEventListener('click', function() {
+            console.log('Botón de escanear clickeado');
+            abrirScanner();
+        });
+    } else {
+        console.error('No se encontró el botón de escanear');
+    }
     
-    // Cerrar escáner
-    closeScannerBtn.addEventListener('click', cerrarScanner);
+    if (closeScannerBtn) {
+        closeScannerBtn.addEventListener('click', cerrarScanner);
+    }
     
-    // Cerrar modal
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+    }
     
     // Cerrar modal al hacer clic fuera
     window.addEventListener('click', function(event) {
@@ -106,39 +118,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Copiar resultado
-    copyBtn.addEventListener('click', function() {
-        const resultText = document.getElementById('qrResult').textContent;
-        navigator.clipboard.writeText(resultText).then(function() {
-            mostrarMensaje('¡Copiado al portapapeles!', 'success');
-        }).catch(function() {
-            mostrarMensaje('Error al copiar', 'error');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            const resultText = document.getElementById('qrResult').textContent;
+            navigator.clipboard.writeText(resultText).then(function() {
+                mostrarMensaje('¡Copiado al portapapeles!', 'success');
+            }).catch(function() {
+                mostrarMensaje('Error al copiar', 'error');
+            });
         });
-    });
-    
-    // Prevenir que el scroll de fondo cuando el escáner está abierto
-    document.addEventListener('touchmove', function(e) {
-        if (document.getElementById('scannerScreen').style.display === 'flex') {
-            e.preventDefault();
-        }
-    }, { passive: false });
+    }
 });
 
 function abrirScanner() {
+    console.log('Abriendo scanner...');
+    
     const mainScreen = document.getElementById('mainScreen');
     const scannerScreen = document.getElementById('scannerScreen');
+    
+    if (!mainScreen || !scannerScreen) {
+        console.error('No se encontraron las pantallas necesarias');
+        return;
+    }
     
     // Ocultar pantalla principal y mostrar escáner
     mainScreen.style.display = 'none';
     scannerScreen.style.display = 'flex';
     
-    // Iniciar escáner después de un pequeño retraso para que el DOM se actualice
+    // Iniciar escáner después de un pequeño retraso
     setTimeout(() => {
         iniciarScanner();
-    }, 100);
+    }, 500);
 }
 
 function cerrarScanner() {
+    console.log('Cerrando scanner...');
+    
     const mainScreen = document.getElementById('mainScreen');
     const scannerScreen = document.getElementById('scannerScreen');
     
@@ -146,23 +161,41 @@ function cerrarScanner() {
     detenerScanner();
     
     // Mostrar pantalla principal y ocultar escáner
-    mainScreen.style.display = 'flex';
-    scannerScreen.style.display = 'none';
+    if (mainScreen && scannerScreen) {
+        mainScreen.style.display = 'flex';
+        scannerScreen.style.display = 'none';
+    }
 }
 
 function iniciarScanner() {
+    console.log('Iniciando scanner...');
+    
     const reader = document.getElementById('reader');
+    
+    if (!reader) {
+        console.error('No se encontró el elemento reader');
+        mostrarMensaje('Error: No se pudo inicializar la cámara', 'error');
+        cerrarScanner();
+        return;
+    }
     
     // Limpiar el contenedor
     reader.innerHTML = '';
     
     // Crear nueva instancia del escáner
-    html5QrCode = new Html5Qrcode("reader");
+    try {
+        html5QrCode = new Html5Qrcode("reader");
+    } catch (error) {
+        console.error('Error al crear Html5Qrcode:', error);
+        mostrarMensaje('Error al inicializar el escáner', 'error');
+        cerrarScanner();
+        return;
+    }
     
     const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-        console.log("QR detectado:", decodedText);
+        console.log("✅ QR detectado:", decodedText);
         
-        // Vibrar si está disponible (solo dispositivos móviles)
+        // Vibrar si está disponible
         if (navigator.vibrate) {
             navigator.vibrate(200);
         }
@@ -182,41 +215,50 @@ function iniciarScanner() {
     const config = {
         fps: 10,
         qrbox: { width: 250, height: 250 },
-        aspectRatio: 1.0,
-        formatsToSupport: [
-            Html5QrcodeScannerQrCodeFormat.QR_CODE,
-            Html5QrcodeScannerQrCodeFormat.CODE_128,
-            Html5QrcodeScannerQrCodeFormat.CODE_39,
-            Html5QrcodeScannerQrCodeFormat.EAN_13,
-            Html5QrcodeScannerQrCodeFormat.EAN_8
-        ]
+        aspectRatio: 1.0
     };
     
+    // Solicitar permisos de cámara y comenzar
     html5QrCode.start(
         { facingMode: "environment" }, // Usar cámara trasera
         config,
         qrCodeSuccessCallback,
         (errorMessage) => {
-            // Ignorar errores de escaneo (son normales)
+            // Ignorar errores de escaneo (son normales durante el escaneo)
             // console.log(errorMessage);
         }
     ).then(() => {
-        console.log("Escáner iniciado correctamente");
+        console.log("✅ Escáner iniciado correctamente");
         isScanning = true;
     }).catch((err) => {
-        console.error("Error al iniciar escáner:", err);
-        mostrarMensaje('Error al acceder a la cámara. Asegúrate de haber dado permisos.', 'error');
-        cerrarScanner();
+        console.error("❌ Error al iniciar escáner:", err);
+        
+        let mensajeError = 'Error al acceder a la cámara';
+        if (err.toString().includes('NotAllowedError')) {
+            mensajeError = 'Permiso de cámara denegado. Por favor, concede permisos en la configuración.';
+        } else if (err.toString().includes('NotFoundError')) {
+            mensajeError = 'No se encontró ninguna cámara en este dispositivo.';
+        } else if (err.toString().includes('NotReadableError')) {
+            mensajeError = 'La cámara está siendo usada por otra aplicación.';
+        }
+        
+        mostrarMensaje(mensajeError, 'error');
+        
+        // Cerrar escáner después del error
+        setTimeout(() => {
+            cerrarScanner();
+        }, 2000);
     });
 }
 
 function detenerScanner() {
     if (html5QrCode && isScanning) {
+        console.log('Deteniendo scanner...');
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
             html5QrCode = null;
             isScanning = false;
-            console.log("Escáner detenido");
+            console.log("✅ Escáner detenido");
         }).catch((err) => {
             console.error("Error al detener escáner:", err);
         });
@@ -227,11 +269,16 @@ function mostrarResultado(texto) {
     const modal = document.getElementById('resultModal');
     const qrResult = document.getElementById('qrResult');
     
+    if (!modal || !qrResult) {
+        console.error('No se encontraron elementos del modal');
+        return;
+    }
+    
     // Intentar detectar si es una URL
     if (esURL(texto)) {
         qrResult.innerHTML = `
             <p><strong>🔗 URL Detectada:</strong></p>
-            <p style="word-break: break-all;">${texto}</p>
+            <p style="word-break: break-all; margin: 10px 0;">${texto}</p>
             <a href="${texto}" target="_blank" class="copy-btn" style="display: inline-block; margin-top: 10px; text-decoration: none; background-color: #0d6efd;">🌐 Abrir enlace</a>
         `;
     } else {
@@ -240,13 +287,13 @@ function mostrarResultado(texto) {
             const jsonObj = JSON.parse(texto);
             qrResult.innerHTML = `
                 <p><strong>📋 JSON Detectado:</strong></p>
-                <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto;">${JSON.stringify(jsonObj, null, 2)}</pre>
+                <pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; overflow: auto; margin: 10px 0;">${JSON.stringify(jsonObj, null, 2)}</pre>
             `;
         } catch (e) {
             // Texto plano
             qrResult.innerHTML = `
                 <p><strong>📄 Contenido:</strong></p>
-                <p style="word-break: break-all;">${texto}</p>
+                <p style="word-break: break-all; margin: 10px 0;">${texto}</p>
             `;
         }
     }
@@ -265,6 +312,8 @@ function esURL(string) {
 
 function mostrarMensaje(texto, tipo) {
     const mensaje = document.getElementById('scanMessage');
+    if (!mensaje) return;
+    
     mensaje.textContent = texto;
     mensaje.className = `scan-message ${tipo}`;
     mensaje.style.display = 'block';
@@ -276,7 +325,8 @@ function mostrarMensaje(texto, tipo) {
 
 // Prevenir que el navegador recargue al hacer swipe en el escáner
 window.addEventListener('touchstart', (e) => {
-    if (document.getElementById('scannerScreen').style.display === 'flex') {
+    const scannerScreen = document.getElementById('scannerScreen');
+    if (scannerScreen && scannerScreen.style.display === 'flex') {
         e.preventDefault();
     }
 }, { passive: false });
