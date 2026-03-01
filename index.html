@@ -3,26 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi PWA</title>
+    <title>Mi Primera PWA</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        #installButton {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            padding: 15px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+        }
+        
+        #installButton:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid #0d6efd;
+            padding: 10px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Mi PWA</h1>
-    <p>Probando instalación</p>
-    <button onclick="verificar()">Verificar Service Worker</button>
-    <div id="info"></div>
+    <h1>Mi Primera PWA</h1>
+    <p>Esta aplicación funciona sin internet</p>
+    
+    <div class="info-box">
+        <strong>📱 Estado:</strong><br>
+        - Service Worker: <span id="swStatus">Verificando...</span><br>
+        - Modo: <span id="modeStatus">Navegador</span>
+    </div>
+    
+    <button id="installButton" onclick="installPWA()">
+        📲 Instalar aplicación
+    </button>
     
     <script src="app.js"></script>
+    
     <script>
-        function verificar() {
-            if (navigator.serviceWorker) {
-                navigator.serviceWorker.getRegistrations().then(regs => {
-                    document.getElementById('info').innerHTML = 
-                        'Service Workers: ' + regs.length;
-                });
-            }
+        // Verificar modo de ejecución
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('modeStatus').textContent = 'Standalone (App)';
+            document.getElementById('modeStatus').style.color = 'green';
+        } else {
+            document.getElementById('modeStatus').textContent = 'Navegador';
+            document.getElementById('modeStatus').style.color = 'blue';
+        }
+        
+        // Verificar Service Worker
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                if (regs.length > 0) {
+                    document.getElementById('swStatus').textContent = '✅ Activo';
+                    document.getElementById('swStatus').style.color = 'green';
+                } else {
+                    document.getElementById('swStatus').textContent = '❌ No registrado';
+                    document.getElementById('swStatus').style.color = 'red';
+                }
+            });
         }
     </script>
 </body>
