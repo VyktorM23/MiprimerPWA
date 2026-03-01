@@ -2,68 +2,33 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mi Primera PWA - Escáner QR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Primera PWA</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- Librería para escáner QR -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.2.0/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
-    <!-- Pantalla principal -->
-    <div id="mainScreen" class="main-screen">
-        <h1>📱 Escáner QR PWA</h1>
-        <p>Esta aplicación funciona sin internet y tiene escáner QR</p>
-        
-        <div class="status-box">
-            <div class="status-item">
-                <span class="status-label">Estado PWA:</span>
-                <span class="status-value" id="pwaStatus">Verificando...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Service Worker:</span>
-                <span class="status-value" id="swStatus">Verificando...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Modo:</span>
-                <span class="status-value" id="modeStatus">Navegador</span>
-            </div>
+    <h1>📱 Mi Primera PWA</h1>
+    <p>Esta aplicación funciona sin internet y se puede instalar en tu celular</p>
+    
+    <div class="status-box">
+        <div class="status-item">
+            <span class="status-label">Estado PWA:</span>
+            <span class="status-value" id="pwaStatus">Verificando...</span>
         </div>
-
-        <!-- Botón para escanear QR -->
-        <button id="scanButton" class="scan-btn">📷 ESCANEAR QR</button>
-    </div>
-
-    <!-- Pantalla del escáner (oculta inicialmente) -->
-    <div id="scannerScreen" class="scanner-screen" style="display: none;">
-        <div class="scanner-header">
-            <button id="closeScanner" class="close-scanner-btn">✕</button>
-            <h2>Escanear Código QR</h2>
+        <div class="status-item">
+            <span class="status-label">Service Worker:</span>
+            <span class="status-value" id="swStatus">Verificando...</span>
         </div>
-        <!-- Contenedor específico para el escáner -->
-        <div id="qr-reader" style="width: 100%; height: calc(100% - 100px);"></div>
-        <div class="scanner-footer">
-            <p>Coloca el código QR dentro del recuadro</p>
+        <div class="status-item">
+            <span class="status-label">Modo:</span>
+            <span class="status-value" id="modeStatus">Navegador</span>
         </div>
     </div>
-
-    <!-- Modal para mostrar resultado -->
-    <div id="resultModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>📄 Información del QR</h3>
-            <div id="qrResult" class="qr-result"></div>
-            <button id="copyResult" class="copy-btn">📋 Copiar</button>
-            <button id="closeResult" class="copy-btn" style="background-color: #6c757d; margin-top: 10px;">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- Mensaje de error/success -->
-    <div id="scanMessage" class="scan-message"></div>
     
     <script src="app.js"></script>
     

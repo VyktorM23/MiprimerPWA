@@ -12,8 +12,7 @@ const urlsToCache = [
     './icon-152x152.png',
     './icon-192x192.png',
     './icon-384x384.png',
-    './icon-512x512.png',
-    'https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js' 
+    './icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {
