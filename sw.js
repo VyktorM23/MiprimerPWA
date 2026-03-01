@@ -1,15 +1,15 @@
 const CACHE_NAME = 'pwa-cache-v1';
 const FILES_TO_CACHE = [
-    './',
-    './index.html',
-    './style.css',
-    './app.js',
-    './manifest.json'
+    '/MiprimerPWA/',
+    '/MiprimerPWA/index.html',
+    '/MiprimerPWA/style.css',
+    '/MiprimerPWA/app.js',
+    '/MiprimerPWA/manifest.json'
 ];
 
 self.addEventListener('install', event => {
-    console.log('Service Worker: Instalando...');
-    self.skipWaiting(); // Activar inmediatamente
+    console.log('Service Worker: Instalando...', 'Scope:', self.registration.scope);
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -39,16 +39,13 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-    console.log('Interceptando:', event.request.url);
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                if (response) {
-                    console.log('Sirviendo desde caché:', event.request.url);
-                    return response;
-                }
-                console.log('Buscando en red:', event.request.url);
-                return fetch(event.request);
-            })
-    );
+    // Solo procesar peticiones dentro de nuestro scope
+    if (event.request.url.includes('/MiprimerPWA/')) {
+        event.respondWith(
+            caches.match(event.request)
+                .then(response => {
+                    return response || fetch(event.request);
+                })
+        );
+    }
 });
