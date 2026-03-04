@@ -10,8 +10,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- Librería QR con carga asíncrona -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.4/minified/html5-qrcode.min.js" async defer></script>
+    <!-- Librería jsQR más liviana y confiable -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -40,10 +40,13 @@
             Escanear QR
         </button>
         
-        <!-- Contenedor para el escáner (inicialmente oculto) -->
-        <div id="qr-reader-container" style="display: none;">
-            <div id="qr-reader"></div>
-            <button id="cancel-scan-btn" class="btn btn-secondary">Cancelar</button>
+        <!-- Video para escaneo -->
+        <div id="video-container" style="display: none;">
+            <video id="qr-video" playsinline></video>
+            <canvas id="qr-canvas" style="display: none;"></canvas>
+            <div class="video-controls">
+                <button id="cancel-scan-btn" class="btn btn-secondary">Cancelar</button>
+            </div>
         </div>
         
         <!-- Resultado del escaneo -->
