@@ -1,4 +1,4 @@
-// app.js - Versión con jsQR
+// app.js - Versión con jsQR y pantalla completa
 let deferredPrompt;
 let videoStream = null;
 let scanningActive = false;
@@ -13,6 +13,7 @@ const resultContainer = document.getElementById('result-container');
 const scanResult = document.getElementById('scan-result');
 const newScanBtn = document.getElementById('new-scan-btn');
 const cancelScanBtn = document.getElementById('cancel-scan-btn');
+const body = document.body;
 
 // Inicializar cuando la página cargue
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,6 +70,31 @@ function mostrarMensajeCamara(mensaje, tipo = 'info') {
     if (scanButton) {
         scanButton.parentNode.insertBefore(statusDiv, scanButton.nextSibling);
     }
+}
+
+// Crear overlay de escaneo
+function crearOverlayEscaneo() {
+    // Eliminar overlay anterior si existe
+    const overlayAnterior = document.querySelector('.scanning-overlay');
+    if (overlayAnterior) {
+        overlayAnterior.remove();
+    }
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'scanning-overlay';
+    overlay.innerHTML = `
+        <div class="scanning-frame">
+            <span></span>
+            <div class="scanning-line"></div>
+        </div>
+    `;
+    
+    const instructions = document.createElement('div');
+    instructions.className = 'scanning-instructions';
+    instructions.textContent = 'Coloca el código QR dentro del recuadro';
+    
+    body.appendChild(overlay);
+    body.appendChild(instructions);
 }
 
 // Actualizar estados de PWA
@@ -172,21 +198,26 @@ async function iniciarEscaneo() {
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment', // Cámara trasera
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
             }
         });
         
         console.log('✅ Permiso de cámara concedido');
-        mostrarMensajeCamara('✅ Cámara lista. Enfoca un código QR.', 'success');
         
         // Configurar video
         video.srcObject = videoStream;
         video.setAttribute('playsinline', true); // Importante para iOS
         
+        // Activar modo pantalla completa
+        body.classList.add('scanning-active');
+        
+        // Crear overlay de escaneo
+        crearOverlayEscaneo();
+        
         // Mostrar contenedor de video
+        videoContainer.style.display = 'flex';
         scanButton.style.display = 'none';
-        videoContainer.style.display = 'block';
         resultContainer.style.display = 'none';
         
         // Esperar a que el video esté listo
@@ -266,6 +297,15 @@ function procesarResultado(data) {
         videoStream = null;
     }
     
+    // Remover overlay de escaneo
+    const overlay = document.querySelector('.scanning-overlay');
+    const instructions = document.querySelector('.scanning-instructions');
+    if (overlay) overlay.remove();
+    if (instructions) instructions.remove();
+    
+    // Desactivar modo pantalla completa
+    body.classList.remove('scanning-active');
+    
     // Vibrar si es posible
     if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate(200);
@@ -308,6 +348,16 @@ function detenerEscaneo() {
         video.srcObject = null;
     }
     
+    // Remover overlay de escaneo
+    const overlay = document.querySelector('.scanning-overlay');
+    const instructions = document.querySelector('.scanning-instructions');
+    if (overlay) overlay.remove();
+    if (instructions) instructions.remove();
+    
+    // Desactivar modo pantalla completa
+    body.classList.remove('scanning-active');
+    
+    // Restaurar UI normal
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
