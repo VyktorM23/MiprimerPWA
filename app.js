@@ -202,9 +202,9 @@ async function iniciarEscaneo() {
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
-                width: { ideal: 720 }, // Reducido para mejor rendimiento
-                height: { ideal: 1280 },
-                frameRate: { ideal: 15 } // Limitar FPS
+                width: { ideal: 1920 },  // Resolución ideal
+                height: { ideal: 1080 },
+                aspectRatio: { ideal: 16/9 }  // Mantener proporción
             }
         });
         
