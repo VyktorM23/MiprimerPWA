@@ -1,8 +1,11 @@
-// app.js - Versión con jsQR y pantalla completa
+// app.js - Versión optimizada con mejor rendimiento
 let deferredPrompt;
 let videoStream = null;
 let scanningActive = false;
 let animationFrame = null;
+let scanTimeout = null;
+let lastScanTime = 0;
+const SCAN_INTERVAL = 200; // Escanear cada 200ms para mejor rendimiento
 
 // Elementos del DOM
 const scanButton = document.getElementById('scanButton');
@@ -182,7 +185,7 @@ window.addEventListener('appinstalled', () => {
     actualizarEstadosPWA();
 });
 
-// ===== FUNCIÓN PRINCIPAL DE ESCANEO =====
+// ===== FUNCIÓN PRINCIPAL DE ESCANEO OPTIMIZADA =====
 async function iniciarEscaneo() {
     console.log('📱 Iniciando escaneo...');
     
@@ -192,14 +195,16 @@ async function iniciarEscaneo() {
             throw new Error('Tu navegador no soporta acceso a cámara');
         }
         
-        // Solicitar permisos de cámara
-        mostrarMensajeCamara('📷 Solicitando permiso para usar la cámara...', 'info');
+        // Mostrar loading
+        mostrarMensajeCamara('📷 Iniciando cámara...', 'info');
         
+        // Configuración optimizada para móviles
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
-                facingMode: 'environment', // Cámara trasera
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
+                facingMode: 'environment',
+                width: { ideal: 720 }, // Reducido para mejor rendimiento
+                height: { ideal: 1280 },
+                frameRate: { ideal: 15 } // Limitar FPS
             }
         });
         
@@ -207,7 +212,7 @@ async function iniciarEscaneo() {
         
         // Configurar video
         video.srcObject = videoStream;
-        video.setAttribute('playsinline', true); // Importante para iOS
+        video.setAttribute('playsinline', true);
         
         // Activar modo pantalla completa
         body.classList.add('scanning-active');
@@ -222,9 +227,15 @@ async function iniciarEscaneo() {
         
         // Esperar a que el video esté listo
         video.onloadedmetadata = () => {
-            video.play();
-            scanningActive = true;
-            escanearQR(); // Iniciar escaneo continuo
+            video.play().then(() => {
+                console.log('✅ Video reproduciendo');
+                scanningActive = true;
+                
+                // Pequeño delay para asegurar que el video esté listo
+                setTimeout(() => {
+                    escanearQRConIntervalo();
+                }, 500);
+            });
         };
         
     } catch (error) {
@@ -232,11 +243,11 @@ async function iniciarEscaneo() {
         
         let mensaje = 'Error al acceder a la cámara';
         if (error.name === 'NotAllowedError') {
-            mensaje = '📷 Permiso de cámara denegado. Habilítalo en configuración.';
+            mensaje = '📷 Permiso de cámara denegado';
         } else if (error.name === 'NotFoundError') {
-            mensaje = '📷 No se encontró cámara en el dispositivo';
+            mensaje = '📷 No se encontró cámara';
         } else {
-            mensaje = '📷 ' + error.message;
+            mensaje = '📷 ' + (error.message || 'Error desconocido');
         }
         
         mostrarMensajeCamara(mensaje, 'error');
@@ -244,57 +255,87 @@ async function iniciarEscaneo() {
     }
 }
 
-// Función para escanear QR continuamente
-function escanearQR() {
+// Escaneo por intervalo (más eficiente que requestAnimationFrame continuo)
+function escanearQRConIntervalo() {
     if (!scanningActive) return;
     
+    // Limpiar timeout anterior
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
+    }
+    
+    // Ejecutar escaneo
+    realizarEscaneo();
+    
+    // Programar siguiente escaneo
+    scanTimeout = setTimeout(() => {
+        escanearQRConIntervalo();
+    }, SCAN_INTERVAL);
+}
+
+function realizarEscaneo() {
+    if (!scanningActive || !video || video.readyState < 2) {
+        return;
+    }
+    
     try {
-        // Verificar que el video tenga dimensiones
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            // Configurar canvas
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
-            // Obtener datos de la imagen
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // Escanear QR con jsQR
-            const code = jsQR(imageData.data, canvas.width, canvas.height, {
-                inversionAttempts: "dontInvert",
-            });
-            
-            if (code) {
-                console.log('✅ QR detectado:', code.data);
-                procesarResultado(code.data);
-                return;
-            }
+        // Limitar tiempo de escaneo para no bloquear
+        const startTime = performance.now();
+        
+        // Configurar canvas con dimensiones reducidas para mejor rendimiento
+        const width = Math.min(video.videoWidth, 640);
+        const height = Math.min(video.videoHeight, 480);
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        context.drawImage(video, 0, 0, width, height);
+        
+        // Obtener datos de la imagen
+        const imageData = context.getImageData(0, 0, width, height);
+        
+        // Escanear QR con jsQR
+        const code = jsQR(imageData.data, width, height, {
+            inversionAttempts: "dontInvert",
+        });
+        
+        if (code) {
+            console.log('✅ QR detectado:', code.data);
+            procesarResultado(code.data);
         }
         
-        // Continuar escaneando
-        animationFrame = requestAnimationFrame(escanearQR);
+        // Medir tiempo de escaneo
+        const scanTime = performance.now() - startTime;
+        if (scanTime > 100) {
+            console.log(`⚠️ Escaneo lento: ${scanTime.toFixed(0)}ms`);
+        }
         
     } catch (error) {
         console.error('Error en escaneo:', error);
-        animationFrame = requestAnimationFrame(escanearQR);
     }
 }
 
 // Procesar resultado del QR
 function procesarResultado(data) {
-    // Detener escaneo
+    // Detener escaneo inmediatamente
     scanningActive = false;
-    if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = null;
+    
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
+        scanTimeout = null;
     }
     
     // Detener video
     if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
+        videoStream.getTracks().forEach(track => {
+            track.stop();
+        });
         videoStream = null;
+    }
+    
+    if (video) {
+        video.srcObject = null;
     }
     
     // Remover overlay de escaneo
@@ -311,7 +352,7 @@ function procesarResultado(data) {
         window.navigator.vibrate(200);
     }
     
-    // Mostrar resultado
+    // Mostrar resultado inmediatamente
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'block';
     
@@ -334,13 +375,16 @@ function detenerEscaneo() {
     console.log('Deteniendo escaneo...');
     
     scanningActive = false;
-    if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-        animationFrame = null;
+    
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
+        scanTimeout = null;
     }
     
     if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
+        videoStream.getTracks().forEach(track => {
+            track.stop();
+        });
         videoStream = null;
     }
     
@@ -348,7 +392,7 @@ function detenerEscaneo() {
         video.srcObject = null;
     }
     
-    // Remover overlay de escaneo
+    // Remover overlay
     const overlay = document.querySelector('.scanning-overlay');
     const instructions = document.querySelector('.scanning-instructions');
     if (overlay) overlay.remove();
@@ -357,16 +401,21 @@ function detenerEscaneo() {
     // Desactivar modo pantalla completa
     body.classList.remove('scanning-active');
     
-    // Restaurar UI normal
+    // Restaurar UI
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
+    
+    mostrarMensajeCamara('Escáner listo para usar', 'success');
 }
 
 // Resetear escaneo (nuevo escaneo)
 function resetearEscaneo() {
     detenerEscaneo();
-    mostrarMensajeCamara('Escáner listo para usar', 'success');
+    // Pequeño delay antes de permitir nuevo escaneo
+    setTimeout(() => {
+        mostrarMensajeCamara('Escáner listo para usar', 'success');
+    }, 300);
 }
 
 // Utilidades
@@ -393,7 +442,7 @@ window.addEventListener('beforeunload', () => {
     if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
     }
-    if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
     }
 });

@@ -22,10 +22,16 @@ body {
     border-radius: 20px;
     padding: 30px 20px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease-out;
 }
 
 /* Estilo cuando el escáner está activo */
+body.scanning-active {
+    background: black;
+    padding: 0;
+    overflow: hidden;
+}
+
 body.scanning-active .container {
     max-width: 100%;
     height: 100vh;
@@ -36,6 +42,7 @@ body.scanning-active .container {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transform: translateZ(0);
 }
 
 body.scanning-active h1,
@@ -68,6 +75,8 @@ body.scanning-active #qr-video {
     border-radius: 0;
     border: none;
     box-shadow: none;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 body.scanning-active .video-controls {
@@ -89,11 +98,17 @@ body.scanning-active .btn-secondary {
     padding: 15px;
     border-radius: 50px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    will-change: transform;
 }
 
 body.scanning-active .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
+}
+
+body.scanning-active .btn-secondary:active {
+    transform: translateY(0);
 }
 
 /* Overlay de escaneo */
@@ -117,7 +132,7 @@ body.scanning-active .btn-secondary:hover {
     border-radius: 20px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     position: relative;
-    animation: pulse 2s infinite;
+    transform: translateZ(0);
 }
 
 .scanning-frame::before,
@@ -168,12 +183,15 @@ body.scanning-active .btn-secondary:hover {
     border-radius: 0 0 15px 0;
 }
 
+/* Línea de escaneo */
 .scanning-line {
     position: absolute;
     width: 100%;
     height: 2px;
     background: linear-gradient(90deg, transparent, #667eea, transparent);
-    animation: scan 2s linear infinite;
+    animation: scan 2s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+    will-change: top;
+    transform: translateZ(0);
 }
 
 @keyframes scan {
@@ -188,19 +206,7 @@ body.scanning-active .btn-secondary:hover {
     }
 }
 
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
-    }
-    100% {
-        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-    }
-}
-
-/* Instrucciones */
+/* Instrucciones de escaneo */
 .scanning-instructions {
     position: fixed;
     top: 50px;
@@ -216,6 +222,7 @@ body.scanning-active .btn-secondary:hover {
     padding: 10px;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+    transform: translateZ(0);
 }
 
 /* Estilos normales (cuando no hay escaneo) */
@@ -271,7 +278,7 @@ h1 {
     color: #ffc107;
 }
 
-/* Botones */
+/* Botones generales */
 .btn {
     display: inline-block;
     padding: 12px 24px;
@@ -280,10 +287,15 @@ h1 {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-align: center;
     width: 100%;
     margin: 5px 0;
+    will-change: transform;
+}
+
+.btn:active {
+    transform: scale(0.98);
 }
 
 .btn-primary {
@@ -304,6 +316,7 @@ h1 {
 .btn-primary:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
 }
 
 .btn-secondary {
@@ -315,6 +328,10 @@ h1 {
 .btn-secondary:hover {
     background: #5a6268;
     transform: translateY(-2px);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
 }
 
 .btn-icon {
@@ -344,6 +361,7 @@ h1 {
     border-radius: 15px;
     border: 3px solid #667eea;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transform: translateZ(0);
 }
 
 .video-controls {
@@ -351,6 +369,21 @@ h1 {
 }
 
 /* Resultado del escaneo */
+#result-container {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .result-box {
     background: #f8f9fa;
     border-radius: 15px;
@@ -369,6 +402,8 @@ h1 {
     border: 1px solid #dee2e6;
     color: #333;
     font-size: 14px;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .qr-action-btn {
@@ -380,13 +415,18 @@ h1 {
     border-radius: 8px;
     margin: 10px 0;
     font-weight: 600;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    will-change: transform;
 }
 
 .qr-action-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.qr-action-btn:active {
+    transform: translateY(0);
 }
 
 /* Mensaje de estado de cámara */
@@ -396,6 +436,21 @@ h1 {
     padding: 12px;
     border-radius: 8px;
     text-align: center;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.camera-status.info {
     background: #d1ecf1;
     color: #0c5460;
     border: 1px solid #bee5eb;
@@ -419,7 +474,23 @@ h1 {
     border: 1px solid #ffeeba;
 }
 
-/* Responsive */
+/* Botón de instalación */
+#installButton {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive para móviles */
 @media (max-width: 480px) {
     .container {
         padding: 20px 15px;
@@ -443,4 +514,156 @@ h1 {
         width: 200px;
         height: 200px;
     }
+    
+    .scanning-instructions {
+        top: 30px;
+        font-size: 14px;
+        padding: 8px;
+    }
+    
+    body.scanning-active .btn-secondary {
+        font-size: 16px;
+        padding: 12px;
+        bottom: 20px;
+    }
+}
+
+/* Soporte para pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .scanning-frame {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .scanning-frame::before,
+    .scanning-frame::after,
+    .scanning-frame span::before,
+    .scanning-frame span::after {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* Modo paisaje en móviles */
+@media (orientation: landscape) and (max-height: 500px) {
+    body.scanning-active .scanning-instructions {
+        top: 15px;
+        font-size: 12px;
+    }
+    
+    .scanning-frame {
+        width: 150px;
+        height: 150px;
+    }
+    
+    body.scanning-active .btn-secondary {
+        bottom: 15px;
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .scanning-line {
+        animation: none;
+        display: none;
+    }
+}
+
+/* Estilos para el canvas (oculto) */
+#qr-canvas {
+    display: none;
+}
+
+/* Utilidades adicionales */
+.text-center {
+    text-align: center;
+}
+
+.mt-2 {
+    margin-top: 10px;
+}
+
+.mb-2 {
+    margin-bottom: 10px;
+}
+
+/* Soporte para iPhone notch */
+@supports (padding: max(0px)) {
+    body.scanning-active .scanning-instructions {
+        top: max(50px, env(safe-area-inset-top));
+    }
+    
+    body.scanning-active .btn-secondary {
+        bottom: max(30px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
+        right: max(20px, env(safe-area-inset-right));
+    }
+}
+
+/* Efecto de brillo para el marco de escaneo */
+.scanning-frame::before,
+.scanning-frame::after,
+.scanning-frame span::before,
+.scanning-frame span::after {
+    filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.5));
+}
+
+/* Mejora de accesibilidad */
+.btn:focus-visible {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+.qr-action-btn:focus-visible {
+    outline: 3px solid white;
+    outline-offset: 2px;
+}
+
+/* Estado de carga */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Mensaje de error mejorado */
+.error-details {
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+/* Transiciones suaves */
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.fade-exit {
+    opacity: 1;
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
