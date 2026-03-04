@@ -1,80 +1,266 @@
-/* Añadir al final del archivo */
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-#camera-status {
-    font-size: 14px;
-    margin: 10px auto;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    width: 100%;
+    background: white;
+    border-radius: 20px;
+    padding: 30px 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+h1 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.container > p {
+    color: #666;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+/* Tarjeta de estado */
+.status-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #e9ecef;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.status-item:last-child {
+    border-bottom: none;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.status-value {
+    font-weight: 500;
+}
+
+.status-value.instalado {
+    color: #28a745;
+}
+
+.status-value.no-instalado {
+    color: #ffc107;
+}
+
+/* Botones */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.btn-icon {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+/* Botón de escaneo específico */
+.scan-btn {
+    font-size: 18px;
+    padding: 15px;
+    margin: 10px 0 20px 0;
+}
+
+/* Contenedor del lector QR */
+#qr-reader-container {
+    margin: 20px 0;
+    text-align: center;
+}
+
+#qr-reader {
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+    background: #f8f9fa;
     padding: 10px;
+    border: 2px solid #e9ecef;
+}
+
+#qr-reader video {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+#qr-reader__dashboard_section_csr button {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 15px;
     border-radius: 5px;
-    max-width: 300px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#qr-reader__dashboard_section_csr select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    margin: 5px;
+}
+
+/* Resultado del escaneo */
+.result-box {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #e9ecef;
 }
 
 .qr-content {
-    background-color: #f8f9fa;
+    background: white;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 10px;
     word-break: break-all;
     font-family: monospace;
-    margin: 10px 0;
+    margin: 15px 0;
     border: 1px solid #dee2e6;
+    color: #333;
 }
 
 .qr-action-btn {
     display: inline-block;
     padding: 12px 24px;
-    background-color: #0d6efd;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 8px;
     margin: 10px 0;
-    font-weight: bold;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .qr-action-btn:hover {
-    background-color: #0b5ed7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* Estilos para el lector QR en móviles */
-#qr-reader {
-    width: 100%;
-    max-width: 100%;
+/* Mensaje de estado de cámara */
+.camera-status {
+    font-size: 14px;
     margin: 10px 0;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
 }
 
-/* Asegurar que el video del lector QR se vea bien */
-#qr-reader video {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
+.camera-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
-/* Botón de escaneo mejorado */
-.scan-btn {
-    background-color: #0d6efd;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 20px auto;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: all 0.3s;
-    max-width: 250px;
-    width: 100%;
+.camera-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
-.scan-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-    opacity: 0.5;
+.camera-status.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
 }
 
-.scan-btn:hover:not(:disabled) {
-    background-color: #0b5ed7;
-    transform: scale(1.05);
+.camera-status.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px 15px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+    
+    .qr-action-btn {
+        padding: 10px 20px;
+        font-size: 14px;
+    }
 }

@@ -10,65 +10,50 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- Agregar librería para QR -->
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- Librería QR con carga asíncrona -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.4/minified/html5-qrcode.min.js" async defer></script>
 </head>
 <body>
-    <h1>📱 Escáner QR PWA</h1>
-    <p>Escanea códigos QR y ve la información instantáneamente</p>
-    
-    <div class="status-box">
-        <div class="status-item">
-            <span class="status-label">Estado PWA:</span>
-            <span class="status-value" id="pwaStatus">Verificando...</span>
+    <div class="container">
+        <h1>📱 Escáner QR PWA</h1>
+        <p>Escanea códigos QR y ve la información instantáneamente</p>
+        
+        <!-- Tarjeta de estado PWA -->
+        <div class="status-card">
+            <div class="status-item">
+                <span class="status-label">Estado PWA:</span>
+                <span class="status-value" id="pwaStatus">Verificando...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Service Worker:</span>
+                <span class="status-value" id="swStatus">Verificando...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Modo:</span>
+                <span class="status-value" id="modeStatus">Navegador</span>
+            </div>
         </div>
-        <div class="status-item">
-            <span class="status-label">Service Worker:</span>
-            <span class="status-value" id="swStatus">Verificando...</span>
+        
+        <!-- Botón de escaneo principal -->
+        <button id="scanButton" class="btn btn-primary scan-btn">
+            <span class="btn-icon">📷</span>
+            Escanear QR
+        </button>
+        
+        <!-- Contenedor para el escáner (inicialmente oculto) -->
+        <div id="qr-reader-container" style="display: none;">
+            <div id="qr-reader"></div>
+            <button id="cancel-scan-btn" class="btn btn-secondary">Cancelar</button>
         </div>
-        <div class="status-item">
-            <span class="status-label">Modo:</span>
-            <span class="status-value" id="modeStatus">Navegador</span>
+        
+        <!-- Resultado del escaneo -->
+        <div id="result-container" style="display: none;">
+            <h3>📄 Resultado del escaneo:</h3>
+            <div id="scan-result" class="result-box"></div>
+            <button id="new-scan-btn" class="btn btn-primary">Escanear otro QR</button>
         </div>
-    </div>
-    
-    <!-- Botón de escaneo -->
-    <button id="scanButton" class="scan-btn">📷 Escanear QR</button>
-    
-    <!-- Contenedor para el escáner (inicialmente oculto) -->
-    <div id="qr-reader" style="display: none;"></div>
-    
-    <!-- Resultado del escaneo -->
-    <div id="result-container" style="display: none;">
-        <h3>Resultado del escaneo:</h3>
-        <div id="scan-result" class="result-box"></div>
-        <button id="new-scan-btn" class="secondary-btn">Nuevo Escaneo</button>
     </div>
     
     <script src="app.js"></script>
-    
-    <script>
-        // Actualizar estados
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            document.getElementById('modeStatus').textContent = 'App Instalada';
-            document.getElementById('modeStatus').className = 'instalado';
-            document.getElementById('pwaStatus').textContent = '✅ Instalada';
-            document.getElementById('pwaStatus').className = 'instalado';
-        } else {
-            document.getElementById('modeStatus').textContent = 'Navegador';
-            document.getElementById('modeStatus').className = 'no-instalado';
-            document.getElementById('pwaStatus').textContent = '🔄 Instalable';
-            document.getElementById('pwaStatus').className = 'no-instalado';
-        }
-        
-        if (navigator.serviceWorker) {
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                document.getElementById('swStatus').textContent = 
-                    regs.length > 0 ? '✅ Activo' : '❌ Inactivo';
-                document.getElementById('swStatus').className = 
-                    regs.length > 0 ? 'instalado' : 'no-instalado';
-            });
-        }
-    </script>
 </body>
 </html>

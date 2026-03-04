@@ -1,72 +1,115 @@
-// app.js mejorado con escáner QR y detección mejorada de cámara
+// app.js - Versión simplificada y funcional
 let deferredPrompt;
 let html5QrCode = null;
-let isLibraryLoaded = false;
+let scannerInitialized = false;
 
 // Elementos del DOM
 const scanButton = document.getElementById('scanButton');
+const qrReaderContainer = document.getElementById('qr-reader-container');
 const qrReader = document.getElementById('qr-reader');
 const resultContainer = document.getElementById('result-container');
 const scanResult = document.getElementById('scan-result');
 const newScanBtn = document.getElementById('new-scan-btn');
+const cancelScanBtn = document.getElementById('cancel-scan-btn');
 
-// Verificar si la librería está cargada
-function checkLibraryLoaded() {
-    if (typeof Html5Qrcode !== 'undefined') {
-        isLibraryLoaded = true;
-        console.log('✅ Librería HTML5-QRCode cargada correctamente');
-        if (scanButton) {
-            scanButton.disabled = false;
-            scanButton.style.opacity = '1';
-        }
-    } else {
-        console.log('⏳ Esperando carga de librería...');
-        setTimeout(checkLibraryLoaded, 200);
-    }
-}
-
-// Iniciar verificación después de cargar la página
-window.addEventListener('load', () => {
-    checkLibraryLoaded();
-    verificarCompatibilidadCamara();
+// Inicializar cuando la página cargue
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM cargado');
+    actualizarEstadosPWA();
+    configurarBotones();
+    verificarLibreria();
 });
 
-// Verificar compatibilidad de cámara
-function verificarCompatibilidadCamara() {
-    const statusDiv = document.createElement('div');
-    statusDiv.id = 'camera-status';
-    statusDiv.style.cssText = `
-        font-size: 14px;
-        margin: 10px auto;
-        padding: 10px;
-        border-radius: 5px;
-        max-width: 300px;
-    `;
-    
-    // Verificar si el contexto es seguro
-    const isSecure = window.isSecureContext;
-    console.log('Contexto seguro (HTTPS):', isSecure);
-    
-    // Verificar soporte de getUserMedia
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        statusDiv.textContent = '✅ Cámara compatible';
-        statusDiv.style.backgroundColor = '#d4edda';
-        statusDiv.style.color = '#155724';
-        statusDiv.style.border = '1px solid #c3e6cb';
+// Verificar que la librería esté cargada
+function verificarLibreria() {
+    if (typeof Html5Qrcode !== 'undefined') {
+        console.log('✅ Librería HTML5-QRCode cargada');
+        scannerInitialized = true;
+        if (scanButton) {
+            scanButton.disabled = false;
+            scanButton.classList.remove('btn-primary:disabled');
+        }
+        mostrarMensajeCamara('Librería cargada correctamente', 'success');
     } else {
-        statusDiv.textContent = '❌ Cámara no compatible. Asegúrate de usar HTTPS y tener permisos.';
-        statusDiv.style.backgroundColor = '#f8d7da';
-        statusDiv.style.color = '#721c24';
-        statusDiv.style.border = '1px solid #f5c6cb';
-    }
-    
-    // Insertar después del botón
-    if (scanButton) {
-        scanButton.insertAdjacentElement('afterend', statusDiv);
+        console.log('⏳ Esperando librería...');
+        setTimeout(verificarLibreria, 200);
     }
 }
 
-// Evento para instalar PWA
+// Configurar botones
+function configurarBotones() {
+    if (scanButton) {
+        scanButton.addEventListener('click', iniciarEscaneo);
+    }
+    
+    if (newScanBtn) {
+        newScanBtn.addEventListener('click', resetearEscaneo);
+    }
+    
+    if (cancelScanBtn) {
+        cancelScanBtn.addEventListener('click', resetearEscaneo);
+    }
+}
+
+// Mostrar mensaje de estado de cámara
+function mostrarMensajeCamara(mensaje, tipo = 'info') {
+    // Eliminar mensaje anterior si existe
+    const mensajeAnterior = document.querySelector('.camera-status');
+    if (mensajeAnterior) {
+        mensajeAnterior.remove();
+    }
+    
+    const statusDiv = document.createElement('div');
+    statusDiv.className = `camera-status ${tipo}`;
+    statusDiv.textContent = mensaje;
+    
+    if (scanButton) {
+        scanButton.parentNode.insertBefore(statusDiv, scanButton.nextSibling);
+    }
+}
+
+// Actualizar estados de PWA
+function actualizarEstadosPWA() {
+    const pwaStatus = document.getElementById('pwaStatus');
+    const modeStatus = document.getElementById('modeStatus');
+    const swStatus = document.getElementById('swStatus');
+    
+    // Verificar modo standalone
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        if (pwaStatus) {
+            pwaStatus.textContent = '✅ Instalada';
+            pwaStatus.className = 'status-value instalado';
+        }
+        if (modeStatus) {
+            modeStatus.textContent = 'App Instalada';
+            modeStatus.className = 'status-value instalado';
+        }
+    } else {
+        if (pwaStatus) {
+            pwaStatus.textContent = '🔄 Instalable';
+            pwaStatus.className = 'status-value no-instalado';
+        }
+        if (modeStatus) {
+            modeStatus.textContent = 'Navegador';
+            modeStatus.className = 'status-value no-instalado';
+        }
+    }
+    
+    // Verificar Service Worker
+    if (navigator.serviceWorker && swStatus) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            if (regs.length > 0) {
+                swStatus.textContent = '✅ Activo';
+                swStatus.className = 'status-value instalado';
+            } else {
+                swStatus.textContent = '❌ Inactivo';
+                swStatus.className = 'status-value no-instalado';
+            }
+        });
+    }
+}
+
+// Evento de instalación PWA
 window.addEventListener('beforeinstallprompt', (e) => {
     console.log('✅ Listo para instalar');
     e.preventDefault();
@@ -78,25 +121,11 @@ function mostrarBotonInstalacion() {
     if (!document.getElementById('installButton')) {
         const btn = document.createElement('button');
         btn.id = 'installButton';
-        btn.textContent = '📲 Instalar App';
+        btn.className = 'btn btn-primary';
+        btn.innerHTML = '<span class="btn-icon">📲</span> Instalar App';
         btn.onclick = instalarPWA;
-        btn.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            padding: 15px;
-            background: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10000;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        `;
-        document.body.appendChild(btn);
+        btn.style.marginTop = '10px';
+        document.querySelector('.container').appendChild(btn);
     }
 }
 
@@ -120,232 +149,158 @@ function instalarPWA() {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-            .then(reg => {
-                console.log('Service Worker registrado:', reg.scope);
-                verificarInstalacion();
-            })
-            .catch(err => console.log('Error:', err));
+            .then(reg => console.log('Service Worker registrado:', reg.scope))
+            .catch(err => console.log('Error SW:', err));
     });
 }
 
-function verificarInstalacion() {
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('App ejecutándose como standalone');
-        document.getElementById('installButton')?.remove();
-    }
-}
-
-// Detectar cuando se instala
+// Detectar instalación
 window.addEventListener('appinstalled', (e) => {
-    console.log('✅ PWA instalada correctamente');
+    console.log('✅ PWA instalada');
     alert('¡App instalada correctamente!');
     document.getElementById('installButton')?.remove();
+    actualizarEstadosPWA();
 });
 
-// ===== FUNCIONALIDAD DE ESCÁNER QR =====
-if (scanButton) {
-    scanButton.addEventListener('click', iniciarEscaneo);
-}
-
-if (newScanBtn) {
-    newScanBtn.addEventListener('click', resetearEscaneo);
-}
-
+// Función para iniciar escaneo
 async function iniciarEscaneo() {
-    // Verificar si la librería está cargada
-    if (!isLibraryLoaded) {
-        alert('Cargando librería de escaneo, intenta de nuevo en un momento...');
-        return;
-    }
+    console.log('Iniciando escaneo...');
     
-    // Verificar contexto seguro
-    if (!window.isSecureContext) {
-        alert('⚠️ El acceso a cámara requiere HTTPS. Esta app necesita ejecutarse en un contexto seguro (HTTPS o localhost).');
-        console.warn('Contexto inseguro detectado');
-        return;
-    }
-    
-    // Verificar soporte de cámara
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('❌ Tu navegador no soporta el acceso a la cámara. Prueba con Chrome o Safari en iOS.');
+    if (!scannerInitialized) {
+        alert('Cargando escáner, intenta de nuevo...');
         return;
     }
     
     try {
-        // Solicitar permisos de cámara explícitamente
-        console.log('Solicitando permisos de cámara...');
+        // Verificar soporte de cámara
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            mostrarMensajeCamara('Tu navegador no soporta acceso a cámara', 'error');
+            return;
+        }
+        
+        // Solicitar permisos
+        mostrarMensajeCamara('Solicitando permiso para usar la cámara...', 'info');
         
         const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: {
-                facingMode: 'environment' // Preferir cámara trasera
-            } 
+            video: { facingMode: 'environment' } 
         });
         
-        // Si llegamos aquí, los permisos fueron concedidos
-        console.log('✅ Permisos de cámara concedidos');
-        
-        // Detener el stream de prueba
+        // Permiso concedido
         stream.getTracks().forEach(track => track.stop());
+        mostrarMensajeCamara('✅ Cámara lista', 'success');
         
-        // Ocultar botón de escaneo y mostrar lector QR
+        // Mostrar lector QR
         scanButton.style.display = 'none';
-        qrReader.style.display = 'block';
+        qrReaderContainer.style.display = 'block';
         resultContainer.style.display = 'none';
         
-        // Limpiar el contenedor
+        // Limpiar contenedor
         qrReader.innerHTML = '';
         
-        // Configurar y iniciar el escáner
+        // Configurar escáner
         const config = {
             fps: 10,
             qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0,
-            rememberLastUsedCamera: true,
-            showTorchButtonIfSupported: true // Botón de linterna en iOS
+            aspectRatio: 1.0
         };
         
         html5QrCode = new Html5Qrcode("qr-reader");
         
-        // En dispositivos móviles, es más simple usar facingMode
-        html5QrCode.start(
-            { facingMode: "environment" }, // Cámara trasera
+        // Iniciar escáner
+        await html5QrCode.start(
+            { facingMode: "environment" },
             config,
             onScanSuccess,
             onScanError
-        ).catch(async (err) => {
-            console.error("Error con cámara trasera:", err);
-            
-            // Intentar con cualquier cámara disponible
-            try {
-                const cameras = await Html5Qrcode.getCameras();
-                if (cameras && cameras.length > 0) {
-                    await html5QrCode.start(
-                        cameras[0].id,
-                        config,
-                        onScanSuccess,
-                        onScanError
-                    );
-                } else {
-                    throw new Error("No se encontraron cámaras");
-                }
-            } catch (cameraError) {
-                console.error("Error al iniciar cámara:", cameraError);
-                alert("No se pudo acceder a la cámara. Verifica los permisos en la configuración de tu dispositivo.");
-                resetearEscaneo();
-            }
-        });
+        );
         
     } catch (err) {
-        console.error("Error al solicitar permisos de cámara:", err);
+        console.error('Error:', err);
         
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            alert('📷 Permiso de cámara denegado. Por favor, permite el acceso a la cámara en la configuración de tu dispositivo y recarga la página.');
-        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            alert('📷 No se encontró ninguna cámara en este dispositivo.');
-        } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-            alert('📷 La cámara está siendo usada por otra aplicación. Ciérrala e intenta de nuevo.');
+        if (err.name === 'NotAllowedError') {
+            mostrarMensajeCamara('Permiso de cámara denegado. Habilítalo en configuración.', 'error');
+        } else if (err.name === 'NotFoundError') {
+            mostrarMensajeCamara('No se encontró cámara en el dispositivo', 'error');
         } else {
-            alert('📷 Error al acceder a la cámara: ' + (err.message || 'Error desconocido'));
+            mostrarMensajeCamara('Error al acceder a la cámara: ' + err.message, 'error');
         }
         
         resetearEscaneo();
     }
 }
 
+// Éxito al escanear
 function onScanSuccess(decodedText, decodedResult) {
     console.log("QR escaneado:", decodedText);
     
-    // Vibrar si está disponible (solo en contexto seguro)
+    // Vibrar si es posible
     if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(200); // Vibrar 200ms
+        window.navigator.vibrate(200);
     }
     
-    // Detener el escáner
+    // Detener escáner
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
             html5QrCode = null;
             
             // Mostrar resultado
-            qrReader.style.display = 'none';
+            qrReaderContainer.style.display = 'none';
             resultContainer.style.display = 'block';
             
-            let resultHTML = `<p><strong>Contenido del QR:</strong></p>
-                              <div class="qr-content">${decodedText}</div>`;
+            let resultHTML = `<div class="qr-content">${decodedText}</div>`;
             
             if (esURL(decodedText)) {
-                resultHTML += `<p><a href="${decodedText}" target="_blank" rel="noopener noreferrer" class="qr-action-btn">🔗 Abrir enlace</a></p>`;
-            } else if (esNumeroTelefono(decodedText)) {
-                resultHTML += `<p><a href="tel:${decodedText}" class="qr-action-btn">📞 Llamar al ${decodedText}</a></p>`;
+                resultHTML += `<a href="${decodedText}" target="_blank" class="qr-action-btn">🔗 Abrir enlace</a>`;
+            } else if (esTelefono(decodedText)) {
+                resultHTML += `<a href="tel:${decodedText}" class="qr-action-btn">📞 Llamar</a>`;
             } else if (esEmail(decodedText)) {
-                resultHTML += `<p><a href="mailto:${decodedText}" class="qr-action-btn">📧 Enviar email</a></p>`;
-            } else if (esWiFi(decodedText)) {
-                resultHTML += `<p>🔐 Red WiFi detectada. Usa la información para conectarte.</p>`;
+                resultHTML += `<a href="mailto:${decodedText}" class="qr-action-btn">📧 Enviar email</a>`;
             }
             
             scanResult.innerHTML = resultHTML;
-        }).catch(err => console.error("Error al detener escáner:", err));
+        });
     }
 }
 
+// Error al escanear
 function onScanError(error) {
-    // Solo mostrar errores importantes para no saturar la consola
+    // Solo mostrar errores importantes
     if (error && error.includes("NotFoundException")) {
-        console.log("Escaneando... (esperando QR válido)");
+        // Ignorar errores de escaneo normales
     }
 }
 
+// Resetear escaneo
 function resetearEscaneo() {
     if (html5QrCode) {
         html5QrCode.stop().then(() => {
             html5QrCode.clear();
             html5QrCode = null;
-        }).catch(err => console.error("Error:", err));
+        }).catch(console.error);
     }
     
     scanButton.style.display = 'block';
-    qrReader.style.display = 'none';
-    qrReader.innerHTML = '';
+    qrReaderContainer.style.display = 'none';
     resultContainer.style.display = 'none';
+    qrReader.innerHTML = '';
     scanResult.innerHTML = '';
 }
 
-// Funciones de utilidad
+// Utilidades
 function esURL(string) {
     try {
         const url = new URL(string);
         return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch (_) {
+    } catch {
         return false;
     }
 }
 
-function esNumeroTelefono(string) {
-    return /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/.test(string);
+function esTelefono(string) {
+    return /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/.test(string);
 }
 
 function esEmail(string) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string);
-}
-
-function esWiFi(string) {
-    return string.toLowerCase().startsWith('wifi:');
-}
-
-// Detectar cambios en el modo standalone
-if (window.matchMedia) {
-    window.matchMedia('(display-mode: standalone)').addEventListener('change', (e) => {
-        if (e.matches) {
-            console.log('App ahora en modo standalone');
-        } else {
-            console.log('App ahora en modo navegador');
-        }
-    });
-}
-
-// Deshabilitar botón inicialmente si la librería no está cargada
-if (scanButton && !isLibraryLoaded) {
-    scanButton.disabled = true;
-    scanButton.style.opacity = '0.5';
-    scanButton.title = 'Cargando librería de escaneo...';
 }
