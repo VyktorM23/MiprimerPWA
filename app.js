@@ -1,4 +1,4 @@
-// app.js - Funcionalidad completa de escaneo (sin cambios)
+// app.js - Funcionalidad completa de escaneo sin mensajes
 let deferredPrompt;
 let videoStream = null;
 let scanningActive = false;
@@ -25,15 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (typeof jsQR !== 'undefined') {
         console.log('✅ jsQR listo');
-        habilitarBotonEscaneo();
+        if (scanButton) {
+            scanButton.disabled = false;
+        }
     }
 });
-
-function habilitarBotonEscaneo() {
-    if (scanButton) {
-        scanButton.disabled = false;
-    }
-}
 
 function configurarBotones() {
     if (scanButton) {
@@ -62,21 +58,6 @@ function registrarServiceWorker() {
                 .then(reg => console.log('✅ Service Worker registrado'))
                 .catch(err => console.log('❌ Error SW:', err));
         });
-    }
-}
-
-function mostrarMensajeCamara(mensaje, tipo = 'info') {
-    const mensajeAnterior = document.querySelector('.camera-status');
-    if (mensajeAnterior) {
-        mensajeAnterior.remove();
-    }
-    
-    const statusDiv = document.createElement('div');
-    statusDiv.className = `camera-status ${tipo}`;
-    statusDiv.textContent = mensaje;
-    
-    if (scanButton) {
-        scanButton.parentNode.insertBefore(statusDiv, scanButton.nextSibling);
     }
 }
 
@@ -110,8 +91,6 @@ async function iniciarEscaneo() {
             throw new Error('Cámara no soportada');
         }
         
-        mostrarMensajeCamara('📷 Iniciando cámara...', 'info');
-        
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
@@ -142,14 +121,6 @@ async function iniciarEscaneo() {
         
     } catch (error) {
         console.error('❌ Error:', error);
-        let mensaje = 'Error al acceder a la cámara';
-        if (error.name === 'NotAllowedError') {
-            mensaje = '📷 Permiso denegado';
-        } else if (error.name === 'NotFoundError') {
-            mensaje = '📷 No se encontró cámara';
-        }
-        
-        mostrarMensajeCamara(mensaje, 'error');
         detenerEscaneo();
     }
 }
@@ -271,15 +242,10 @@ function detenerEscaneo() {
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
-    
-    mostrarMensajeCamara('Escáner listo', 'success');
 }
 
 function resetearEscaneo() {
     detenerEscaneo();
-    setTimeout(() => {
-        mostrarMensajeCamara('Escáner listo', 'success');
-    }, 300);
 }
 
 function esURL(string) {

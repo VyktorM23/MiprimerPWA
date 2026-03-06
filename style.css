@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    background: #0066B3;  /* Azul hospitalario sólido */
+    background: #0066B3;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -26,10 +26,10 @@ body {
     align-items: center;
     padding: 30px 20px;
     margin: 0 auto;
-    background: transparent;  /* Fondo completamente transparente */
+    background: transparent;
 }
 
-/* Título del hospital - estilos mejorados */
+/* Título del hospital */
 .hospital-title {
     color: white;
     font-size: 48px;
@@ -40,7 +40,6 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 2px;
     text-transform: uppercase;
-    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
     width: 100%;
 }
 
@@ -253,29 +252,7 @@ body.scanning-active #video-container {
     display: none;
 }
 
-/* Mensaje de estado de cámara */
-.camera-status {
-    font-size: 16px;
-    margin: 15px 0;
-    padding: 15px 25px;
-    border-radius: 50px;
-    text-align: center;
-    background: white;
-    color: #0066B3;
-    font-weight: 500;
-    max-width: 280px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.camera-status.success {
-    background: #28a745;
-    color: white;
-}
-
-.camera-status.error {
-    background: #dc3545;
-    color: white;
-}
+/* Eliminados los estilos de camera-status */
 
 /* Botón de instalación */
 #installButton {
