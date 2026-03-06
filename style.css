@@ -7,15 +7,37 @@
 
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    background: #0066B3;
+    background: #0066B3;  /* Azul hospitalario */
     min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     padding: 0;
     margin: 0;
+    position: relative;
 }
 
+/* Título fijo en la parte superior */
+.hospital-title {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+    padding: 40px 20px 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: transparent;
+    pointer-events: none; /* Permite hacer clic a través del título */
+}
+
+/* Contenedor principal */
 .container {
     width: 100%;
     max-width: 400px;
@@ -24,23 +46,9 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 30px 20px;
+    padding: 120px 20px 40px; /* Padding superior para dejar espacio al título fijo */
     margin: 0 auto;
     background: transparent;
-}
-
-/* Título del hospital */
-.hospital-title {
-    color: white;
-    font-size: 48px;
-    font-weight: 800;
-    text-align: center;
-    line-height: 1.2;
-    margin-bottom: 80px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    width: 100%;
 }
 
 /* Contenedor de botones */
@@ -100,13 +108,16 @@ body.scanning-active {
     background: black;
 }
 
+body.scanning-active .hospital-title {
+    display: none; /* Ocultar título cuando se escanea */
+}
+
 body.scanning-active .container {
     justify-content: flex-start;
     padding: 0;
     background: transparent;
 }
 
-body.scanning-active .hospital-title,
 body.scanning-active .buttons-container {
     display: none;
 }
@@ -252,8 +263,6 @@ body.scanning-active #video-container {
     display: none;
 }
 
-/* Eliminados los estilos de camera-status */
-
 /* Botón de instalación */
 #installButton {
     margin-top: 10px !important;
@@ -286,7 +295,11 @@ body.scanning-active #video-container {
 @media (max-width: 480px) {
     .hospital-title {
         font-size: 42px;
-        margin-bottom: 60px;
+        padding: 30px 15px 15px;
+    }
+    
+    .container {
+        padding: 110px 15px 30px;
     }
     
     .buttons-container {
@@ -302,6 +315,38 @@ body.scanning-active #video-container {
 @media (max-width: 360px) {
     .hospital-title {
         font-size: 36px;
-        margin-bottom: 50px;
+        padding: 25px 10px 10px;
+    }
+    
+    .container {
+        padding: 100px 10px 25px;
+    }
+    
+    .buttons-container {
+        max-width: 240px;
+    }
+    
+    .btn {
+        padding: 14px 18px;
+        font-size: 16px;
+    }
+}
+
+/* Soporte para iPhone notch */
+@supports (padding: max(0px)) {
+    .hospital-title {
+        padding-top: max(40px, env(safe-area-inset-top));
+    }
+    
+    body.scanning-active .scanning-instructions {
+        top: max(50px, env(safe-area-inset-top));
+        left: max(20px, env(safe-area-inset-left));
+        right: max(20px, env(safe-area-inset-right));
+    }
+    
+    body.scanning-active .video-controls {
+        bottom: max(40px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
+        right: max(20px, env(safe-area-inset-right));
     }
 }
