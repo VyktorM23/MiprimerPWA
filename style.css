@@ -6,49 +6,109 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: #0066B3;  /* Azul hospitalario sólido */
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 0;
+    margin: 0;
 }
 
 .container {
-    max-width: 500px;
     width: 100%;
-    background: white;
-    border-radius: 20px;
+    max-width: 400px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     padding: 30px 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    transition: all 0.2s ease-out;
+    margin: 0 auto;
+    background: transparent;  /* Fondo completamente transparente */
 }
 
-/* Estilo cuando el escáner está activo */
+/* Título del hospital - estilos mejorados */
+.hospital-title {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 80px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    width: 100%;
+}
+
+/* Contenedor de botones */
+.buttons-container {
+    width: 100%;
+    max-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Estilo de los botones */
+.btn {
+    width: 100%;
+    padding: 18px 24px;
+    border: none;
+    border-radius: 50px;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    background: white;
+    color: #0066B3;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+}
+
+.btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+}
+
+.btn:active {
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Botón secundario (cancelar) */
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #0066B3;
+    font-size: 18px;
+    padding: 14px 20px;
+}
+
+/* Estilos para el escáner */
 body.scanning-active {
     background: black;
-    padding: 0;
-    overflow: hidden;
 }
 
 body.scanning-active .container {
-    max-width: 100%;
-    height: 100vh;
-    border-radius: 0;
+    justify-content: flex-start;
     padding: 0;
-    margin: 0;
-    background: black;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transform: translateZ(0);
+    background: transparent;
 }
 
-body.scanning-active h1,
-body.scanning-active p,
-body.scanning-active .status-card,
-body.scanning-active .scan-btn {
+body.scanning-active .hospital-title,
+body.scanning-active .buttons-container {
     display: none;
 }
 
@@ -57,79 +117,26 @@ body.scanning-active #video-container {
     flex-direction: column;
     height: 100vh;
     width: 100vw;
-    margin: 0;
-    padding: 0;
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
     background: black;
     z-index: 1000;
-    overflow: hidden;
 }
 
-/* Video sin zoom, manteniendo proporciones */
-body.scanning-active #qr-video {
+#qr-video {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
     background: black;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
 
-/* Ajustes por orientación */
-@media (orientation: portrait) {
-    body.scanning-active #qr-video {
-        width: 100%;
-        height: auto;
-        max-height: 100vh;
-    }
-}
-
-@media (orientation: landscape) {
-    body.scanning-active #qr-video {
-        width: auto;
-        height: 100%;
-        max-width: 100vw;
-    }
-}
-
-/* Controles del video */
-body.scanning-active .video-controls {
+.video-controls {
     position: fixed;
-    bottom: 30px;
+    bottom: 40px;
     left: 20px;
     right: 20px;
     z-index: 1001;
-    margin: 0;
-}
-
-body.scanning-active .btn-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    font-size: 18px;
-    padding: 15px;
-    border-radius: 50px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
-    will-change: transform;
-}
-
-body.scanning-active .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-}
-
-body.scanning-active .btn-secondary:active {
-    transform: translateY(0);
 }
 
 /* Overlay de escaneo */
@@ -146,275 +153,145 @@ body.scanning-active .btn-secondary:active {
     justify-content: center;
 }
 
-/* Marco de escaneo - tamaño balanceado */
 .scanning-frame {
-    width: min(70vw, 350px);
-    height: min(70vw, 350px);
-    border: 3px solid rgba(255, 255, 255, 0.8);
-    border-radius: 30px;
+    width: min(70vw, 300px);
+    height: min(70vw, 300px);
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
     position: relative;
-    transform: translateZ(0);
-    margin: auto;
 }
 
-/* Esquinas decorativas */
-.scanning-frame::before,
-.scanning-frame::after {
-    content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border-color: #667eea;
-    border-style: solid;
-    border-width: 4px;
-    filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.8));
-}
-
-.scanning-frame::before {
-    top: -2px;
-    left: -2px;
-    border-width: 4px 0 0 4px;
-    border-radius: 25px 0 0 0;
-}
-
-.scanning-frame::after {
-    top: -2px;
-    right: -2px;
-    border-width: 4px 4px 0 0;
-    border-radius: 0 25px 0 0;
-}
-
-.scanning-frame span::before,
-.scanning-frame span::after {
-    content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    border-color: #667eea;
-    border-style: solid;
-    border-width: 4px;
-    filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.8));
-}
-
-.scanning-frame span::before {
-    bottom: -2px;
-    left: -2px;
-    border-width: 0 0 4px 4px;
-    border-radius: 0 0 0 25px;
-}
-
-.scanning-frame span::after {
-    bottom: -2px;
-    right: -2px;
-    border-width: 0 4px 4px 0;
-    border-radius: 0 0 25px 0;
-}
-
-/* Línea de escaneo */
 .scanning-line {
     position: absolute;
     width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        #667eea, 
-        #9f7aea, 
-        #667eea, 
-        transparent
-    );
-    animation: scan 2s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
-    will-change: top;
-    transform: translateZ(0);
-    box-shadow: 0 0 15px #667eea;
+    height: 2px;
+    background: white;
+    box-shadow: 0 0 10px white;
+    animation: scan 2s linear infinite;
+    top: 0;
 }
 
-@keyframes scan {
-    0% {
-        top: 0;
-    }
-    50% {
-        top: 100%;
-    }
-    100% {
-        top: 0;
-    }
-}
-
-/* Instrucciones de escaneo */
 .scanning-instructions {
     position: fixed;
     top: 50px;
-    left: 0;
-    right: 0;
+    left: 20px;
+    right: 20px;
     text-align: center;
     color: white;
-    font-size: 18px;
-    font-weight: 600;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-    z-index: 1003;
-    background: rgba(0,0,0,0.4);
-    padding: 15px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transform: translateZ(0);
-}
-
-.scanning-instructions::after {
-    content: 'Ajusta la distancia para enfocar';
-    display: block;
-    font-size: 14px;
-    margin-top: 8px;
-    opacity: 0.9;
-    font-weight: normal;
-}
-
-/* Estilos normales (cuando no hay escaneo) */
-h1 {
-    color: #333;
-    font-size: 24px;
-    margin-bottom: 10px;
-    text-align: center;
-}
-
-.container > p {
-    color: #666;
-    text-align: center;
-    margin-bottom: 25px;
     font-size: 16px;
-}
-
-/* Tarjeta de estado */
-.status-card {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 15px;
-    margin-bottom: 25px;
-    border: 1px solid #e9ecef;
-}
-
-.status-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.status-item:last-child {
-    border-bottom: none;
-}
-
-.status-label {
-    font-weight: 600;
-    color: #495057;
-}
-
-.status-value {
     font-weight: 500;
-}
-
-.status-value.instalado {
-    color: #28a745;
-}
-
-.status-value.no-instalado {
-    color: #ffc107;
-}
-
-/* Botones generales */
-.btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-align: center;
-    width: 100%;
-    margin: 5px 0;
-    will-change: transform;
-}
-
-.btn:active {
-    transform: scale(0.98);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.btn-primary:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-}
-
-.btn-primary:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.btn-primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-    box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
-}
-
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
-.btn-secondary:active {
-    transform: translateY(0);
-}
-
-.btn-icon {
-    margin-right: 8px;
-    font-size: 18px;
-}
-
-/* Botón de escaneo específico */
-.scan-btn {
-    font-size: 18px;
-    padding: 15px;
-    margin: 10px 0 20px 0;
-}
-
-/* Contenedor de video (modo normal) */
-#video-container {
-    display: none;
-    margin: 20px 0;
-    text-align: center;
-    position: relative;
-}
-
-#qr-video {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 15px;
-    border: 3px solid #667eea;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transform: translateZ(0);
-}
-
-.video-controls {
-    margin-top: 15px;
+    z-index: 1003;
+    background: #0066B3;
+    padding: 12px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Resultado del escaneo */
 #result-container {
+    width: 100%;
+    max-width: 350px;
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     animation: fadeIn 0.3s ease;
+    margin-top: 20px;
+}
+
+#result-container h3 {
+    color: #0066B3;
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.result-box {
+    background: #f0f8ff;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.qr-content {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    word-break: break-all;
+    font-family: monospace;
+    border: 1px solid #0066B3;
+    color: #333;
+    font-size: 14px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.qr-action-btn {
+    display: block;
+    padding: 15px;
+    background: #0066B3;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    margin: 15px 0 5px;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.qr-action-btn:hover {
+    background: #004c8c;
+    transform: translateY(-2px);
+}
+
+/* Canvas oculto */
+#qr-canvas {
+    display: none;
+}
+
+/* Mensaje de estado de cámara */
+.camera-status {
+    font-size: 16px;
+    margin: 15px 0;
+    padding: 15px 25px;
+    border-radius: 50px;
+    text-align: center;
+    background: white;
+    color: #0066B3;
+    font-weight: 500;
+    max-width: 280px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.camera-status.success {
+    background: #28a745;
+    color: white;
+}
+
+.camera-status.error {
+    background: #dc3545;
+    color: white;
+}
+
+/* Botón de instalación */
+#installButton {
+    margin-top: 10px !important;
+    background: white !important;
+    color: #0066B3 !important;
+}
+
+/* Animaciones */
+@keyframes scan {
+    0% {
+        top: 0;
+    }
+    100% {
+        top: 100%;
+    }
 }
 
 @keyframes fadeIn {
@@ -428,345 +305,26 @@ h1 {
     }
 }
 
-.result-box {
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 20px;
-    margin: 20px 0;
-    border: 1px solid #e9ecef;
-}
-
-.qr-content {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    word-break: break-all;
-    font-family: monospace;
-    margin: 15px 0;
-    border: 1px solid #dee2e6;
-    color: #333;
-    font-size: 14px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.qr-action-btn {
-    display: inline-block;
-    padding: 12px 24px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    margin: 10px 0;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    will-change: transform;
-}
-
-.qr-action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.qr-action-btn:active {
-    transform: translateY(0);
-}
-
-/* Mensaje de estado de cámara */
-.camera-status {
-    font-size: 14px;
-    margin: 10px 0;
-    padding: 12px;
-    border-radius: 8px;
-    text-align: center;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.camera-status.info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-.camera-status.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.camera-status.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.camera-status.warning {
-    background: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-
-/* Botón de instalación */
-#installButton {
-    animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Canvas oculto */
-#qr-canvas {
-    display: none;
-}
-
-/* Responsive para móviles */
+/* Responsive */
 @media (max-width: 480px) {
-    .container {
-        padding: 20px 15px;
+    .hospital-title {
+        font-size: 42px;
+        margin-bottom: 60px;
     }
     
-    h1 {
-        font-size: 22px;
+    .buttons-container {
+        max-width: 260px;
     }
     
     .btn {
-        padding: 12px 20px;
-        font-size: 16px;
-    }
-    
-    .qr-action-btn {
-        padding: 10px 20px;
-        font-size: 14px;
-    }
-    
-    .scanning-frame {
-        width: min(75vw, 300px);
-        height: min(75vw, 300px);
-    }
-    
-    .scanning-instructions {
-        top: 30px;
-        font-size: 16px;
-        padding: 12px;
-    }
-    
-    .scanning-instructions::after {
-        font-size: 13px;
-    }
-    
-    .scanning-frame::before,
-    .scanning-frame::after,
-    .scanning-frame span::before,
-    .scanning-frame span::after {
-        width: 45px;
-        height: 45px;
-    }
-    
-    body.scanning-active .btn-secondary {
-        font-size: 16px;
-        padding: 12px;
-        bottom: 20px;
+        padding: 16px 20px;
+        font-size: 18px;
     }
 }
 
-/* Soporte para pantallas muy pequeñas */
-@media (max-width: 320px) {
-    .scanning-frame {
-        width: min(80vw, 250px);
-        height: min(80vw, 250px);
-    }
-    
-    .scanning-frame::before,
-    .scanning-frame::after,
-    .scanning-frame span::before,
-    .scanning-frame span::after {
-        width: 35px;
-        height: 35px;
-    }
-}
-
-/* Modo paisaje en móviles */
-@media (orientation: landscape) and (max-height: 500px) {
-    body.scanning-active .scanning-instructions {
-        top: 15px;
-        font-size: 14px;
-    }
-    
-    .scanning-frame {
-        width: min(40vh, 300px);
-        height: min(40vh, 300px);
-    }
-    
-    body.scanning-active .btn-secondary {
-        bottom: 15px;
-        padding: 10px;
-        font-size: 14px;
-    }
-}
-
-/* Soporte para tablets */
-@media (min-width: 768px) and (max-width: 1024px) {
-    .scanning-frame {
-        width: 400px;
-        height: 400px;
-    }
-    
-    .scanning-frame::before,
-    .scanning-frame::after,
-    .scanning-frame span::before,
-    .scanning-frame span::after {
-        width: 80px;
-        height: 80px;
-    }
-}
-
-/* Preferencia de movimiento reducido */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-    
-    .scanning-line {
-        animation: none;
-        display: none;
-    }
-}
-
-/* Soporte para iPhone notch */
-@supports (padding: max(0px)) {
-    body.scanning-active .scanning-instructions {
-        top: max(50px, env(safe-area-inset-top));
-    }
-    
-    body.scanning-active .btn-secondary {
-        bottom: max(30px, env(safe-area-inset-bottom));
-        left: max(20px, env(safe-area-inset-left));
-        right: max(20px, env(safe-area-inset-right));
-    }
-}
-
-/* Utilidades */
-.text-center {
-    text-align: center;
-}
-
-.mt-2 {
-    margin-top: 10px;
-}
-
-.mb-2 {
-    margin-bottom: 10px;
-}
-
-/* Loading spinner */
-.loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255,255,255,.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-/* Mensaje de error */
-.error-details {
-    font-size: 12px;
-    margin-top: 5px;
-    opacity: 0.8;
-}
-
-/* Transiciones */
-.fade-enter {
-    opacity: 0;
-}
-
-.fade-enter-active {
-    opacity: 1;
-    transition: opacity 0.2s ease;
-}
-
-.fade-exit {
-    opacity: 1;
-}
-
-.fade-exit-active {
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-/* Mejoras de accesibilidad */
-.btn:focus-visible {
-    outline: 3px solid #667eea;
-    outline-offset: 2px;
-}
-
-.qr-action-btn:focus-visible {
-    outline: 3px solid white;
-    outline-offset: 2px;
-}
-
-/* Efectos de hover mejorados */
-.qr-action-btn {
-    position: relative;
-    overflow: hidden;
-}
-
-.qr-action-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-}
-
-.qr-action-btn:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
-}
-
-@keyframes ripple {
-    0% {
-        transform: scale(0, 0);
-        opacity: 0.5;
-    }
-    20% {
-        transform: scale(25, 25);
-        opacity: 0.3;
-    }
-    100% {
-        opacity: 0;
-        transform: scale(40, 40);
+@media (max-width: 360px) {
+    .hospital-title {
+        font-size: 36px;
+        margin-bottom: 50px;
     }
 }
