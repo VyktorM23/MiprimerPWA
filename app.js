@@ -28,6 +28,8 @@ const historyScreen = document.getElementById('history-screen');
 const historyList = document.getElementById('history-list');
 const backFromHistoryBtn = document.getElementById('back-from-history-btn');
 const body = document.body;
+const hospitalTitle = document.querySelector('.hospital-title');
+const backToHomeBtn = document.getElementById('back-to-home-btn');
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,6 +84,10 @@ function configurarBotones() {
     if (cancelScanBtn) {
         cancelScanBtn.addEventListener('click', detenerEscaneo);
     }
+    
+    if (backToHomeBtn) {
+        backToHomeBtn.addEventListener('click', volverInicio);
+    }
 }
 
 function cargarHistorial() {
@@ -96,12 +102,14 @@ function guardarHistorial() {
 }
 
 function mostrarPantallaAccion() {
+    hospitalTitle.style.display = 'none'; // Ocultar título
     document.querySelector('.buttons-container').style.display = 'none';
     actionSelectionScreen.style.display = 'flex';
     historyScreen.style.display = 'none';
 }
 
 function mostrarHistorial() {
+    hospitalTitle.style.display = 'none'; // Ocultar título
     document.querySelector('.buttons-container').style.display = 'none';
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'flex';
@@ -136,7 +144,8 @@ function actualizarListaHistorial() {
         });
         
         item.innerHTML = `
-            <div class="history-empleado">${registro.empleado}</div>
+            <div class="history-empleado">${registro.nombres}</div>
+            <div class="history-cedula">C.I: ${registro.cedula}</div>
             <div class="history-accion ${registro.accion}">${registro.accion === 'entrada' ? '🚪 ENTRADA' : '🚶 SALIDA'}</div>
             <div class="history-fecha">${fechaFormateada} ${horaFormateada}</div>
         `;
@@ -146,6 +155,7 @@ function actualizarListaHistorial() {
 }
 
 function volverInicio() {
+    hospitalTitle.style.display = 'block'; // Mostrar título solo en inicio
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'none';
     document.querySelector('.buttons-container').style.display = 'flex';
@@ -153,6 +163,7 @@ function volverInicio() {
 
 function iniciarEscaneoConAccion(accion) {
     currentAction = accion;
+    hospitalTitle.style.display = 'none'; // Ocultar título
     actionSelectionScreen.style.display = 'none';
     iniciarEscaneo();
 }
@@ -306,18 +317,21 @@ function procesarResultado(data) {
     
     videoContainer.style.display = 'none';
     
-    // Guardar en historial
+    // Parsear datos del QR (asumiendo formato: NOMBRES|CEDULA)
+    let nombres = 'No disponible';
+    let cedula = 'No disponible';
+    
+    if (data.includes('|')) {
+        const partes = data.split('|');
+        nombres = partes[0]?.trim() || 'No disponible';
+        cedula = partes[1]?.trim() || 'No disponible';
+    } else {
+        // Si no tiene el formato esperado, usar todo el contenido
+        nombres = data;
+    }
+    
+    // Obtener fecha y hora actual
     const ahora = new Date();
-    const registro = {
-        empleado: data,
-        accion: currentAction,
-        timestamp: ahora.toISOString()
-    };
-    
-    attendanceHistory.push(registro);
-    guardarHistorial();
-    
-    // Mostrar resultado temporal
     const fechaFormateada = ahora.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
@@ -329,26 +343,60 @@ function procesarResultado(data) {
         second: '2-digit'
     });
     
+    // Guardar en historial
+    const registro = {
+        nombres: nombres,
+        cedula: cedula,
+        accion: currentAction,
+        timestamp: ahora.toISOString()
+    };
+    
+    attendanceHistory.push(registro);
+    guardarHistorial();
+    
     const accionTexto = currentAction === 'entrada' ? 'ENTRADA' : 'SALIDA';
     const colorAccion = currentAction === 'entrada' ? '#4CAF50' : '#f44336';
     
     resultContainer.style.display = 'block';
     scanResult.innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <div style="font-size: 24px; font-weight: bold; margin-bottom: 15px; color: ${colorAccion};">${accionTexto} REGISTRADA</div>
-            <div class="qr-content" style="font-size: 20px; margin-bottom: 15px;">${data}</div>
-            <div style="font-size: 18px; margin: 10px 0;">${fechaFormateada}</div>
-            <div style="font-size: 24px; font-weight: bold; color: #0066B3;">${horaFormateada}</div>
+        <div class="result-card">
+            <div class="result-header" style="background: ${colorAccion};">
+                <span class="result-action-icon">${currentAction === 'entrada' ? '🚪' : '🚶'}</span>
+                <span class="result-action-text">${accionTexto}</span>
+            </div>
+            
+            <div class="result-body">
+                <div class="result-field">
+                    <span class="field-label">NOMBRES:</span>
+                    <span class="field-value">${nombres}</span>
+                </div>
+                
+                <div class="result-field">
+                    <span class="field-label">CEDULA:</span>
+                    <span class="field-value">${cedula}</span>
+                </div>
+                
+                <div class="result-field">
+                    <span class="field-label">FECHA:</span>
+                    <span class="field-value">${fechaFormateada}</span>
+                </div>
+                
+                <div class="result-field">
+                    <span class="field-label">HORA:</span>
+                    <span class="field-value result-time">${horaFormateada}</span>
+                </div>
+            </div>
+            
+            <div class="result-footer">
+                <button id="back-to-home-btn" class="btn btn-primary result-home-btn">
+                    ← VOLVER AL INICIO
+                </button>
+            </div>
         </div>
     `;
     
-    // Auto-retorno después de 3 segundos
-    setTimeout(() => {
-        resultContainer.style.display = 'none';
-        scanButton.style.display = 'block';
-        currentAction = null;
-        volverInicio();
-    }, 3000);
+    // Re-asignar evento al botón de volver
+    document.getElementById('back-to-home-btn').addEventListener('click', volverInicio);
 }
 
 function detenerEscaneo() {
@@ -375,6 +423,7 @@ function detenerEscaneo() {
     
     body.classList.remove('scanning-active');
     
+    hospitalTitle.style.display = 'block'; // Mostrar título
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
