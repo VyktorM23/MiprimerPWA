@@ -32,6 +32,9 @@ const hospitalTitle = document.querySelector('.hospital-title');
 const container = document.querySelector('.container');
 const buttonsContainer = document.querySelector('.buttons-container');
 
+// Variable para controlar si ya se solicitó permiso de cámara
+let cameraPermissionGranted = false;
+
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ App iniciada');
@@ -45,7 +48,32 @@ document.addEventListener('DOMContentLoaded', () => {
             scanButton.disabled = false;
         }
     }
+    
+    // Precargar la cámara en segundo plano para que esté lista más rápido
+    precargarCamara();
 });
+
+function precargarCamara() {
+    // Intentar obtener acceso a la cámara en segundo plano sin mostrarla
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && !cameraPermissionGranted) {
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
+        })
+        .then(stream => {
+            // Guardar el stream pero detenerlo inmediatamente después de obtener permiso
+            cameraPermissionGranted = true;
+            stream.getTracks().forEach(track => track.stop());
+            console.log('✅ Permiso de cámara pre-obtenido');
+        })
+        .catch(err => {
+            console.log('No se pudo pre-obtener permiso de cámara:', err);
+        });
+    }
+}
 
 function configurarBotones() {
     if (scanButton) {
@@ -108,9 +136,8 @@ function mostrarPantallaAccion() {
     actionSelectionScreen.style.display = 'flex';
     historyScreen.style.display = 'none';
     resultContainer.style.display = 'none';
-    container.style.overflow = 'hidden';
-    container.style.justifyContent = 'flex-start';
-    container.style.paddingTop = '20px';
+    container.style.justifyContent = 'center';
+    container.style.paddingTop = '0';
 }
 
 function mostrarHistorial() {
@@ -119,9 +146,8 @@ function mostrarHistorial() {
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'flex';
     resultContainer.style.display = 'none';
-    container.style.overflow = 'hidden';
-    container.style.justifyContent = 'flex-start';
-    container.style.paddingTop = '20px';
+    container.style.justifyContent = 'center';
+    container.style.paddingTop = '0';
     actualizarListaHistorial();
 }
 
@@ -170,7 +196,6 @@ function volverInicio() {
     resultContainer.style.display = 'none';
     videoContainer.style.display = 'none';
     buttonsContainer.style.display = 'flex';
-    container.style.overflow = 'hidden';
     container.style.justifyContent = 'center';
     container.style.paddingTop = '120px';
     
@@ -233,42 +258,44 @@ async function iniciarEscaneo() {
             throw new Error('Cámara no soportada');
         }
         
-        // Configuración original con resolución 1280x720
-        videoStream = await navigator.mediaDevices.getUserMedia({
+        // Mostrar el contenedor de video inmediatamente
+        body.classList.add('scanning-active');
+        crearOverlayEscaneo();
+        videoContainer.style.display = 'flex';
+        buttonsContainer.style.display = 'none';
+        container.style.justifyContent = 'flex-start';
+        container.style.paddingTop = '0';
+        
+        // Configuración de la cámara con resolución original
+        const constraints = {
             video: {
                 facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             }
-        });
+        };
+        
+        // Si ya tenemos permiso, esto será más rápido
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
         
         video.srcObject = videoStream;
         video.setAttribute('playsinline', true);
         
-        body.classList.add('scanning-active');
-        crearOverlayEscaneo();
-        
-        videoContainer.style.display = 'flex';
-        buttonsContainer.style.display = 'none';
-        resultContainer.style.display = 'none';
-        container.style.overflow = 'hidden';
-        
-        // Iniciar escaneo inmediatamente cuando el video esté listo
-        video.onloadedmetadata = () => {
-            video.play().then(() => {
-                console.log('✅ Video reproduciendo');
-                scanningActive = true;
-                // Escaneo inmediato sin esperar
-                realizarEscaneo();
-                // Continuar con el intervalo
-                scanTimeout = setTimeout(() => {
-                    escanearQRConIntervalo();
-                }, SCAN_INTERVAL);
-            }).catch(err => {
-                console.error('Error al reproducir video:', err);
-                detenerEscaneo();
-            });
-        };
+        // Reproducir video inmediatamente
+        try {
+            await video.play();
+            console.log('✅ Video reproduciendo');
+            scanningActive = true;
+            // Escaneo inmediato
+            realizarEscaneo();
+            // Continuar con el intervalo
+            scanTimeout = setTimeout(() => {
+                escanearQRConIntervalo();
+            }, SCAN_INTERVAL);
+        } catch (playError) {
+            console.error('Error al reproducir video:', playError);
+            detenerEscaneo();
+        }
         
     } catch (error) {
         console.error('❌ Error:', error);
@@ -405,9 +432,9 @@ function procesarResultado(data) {
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'none';
     
-    // Ajustar contenedor para resultado
-    container.style.justifyContent = 'flex-start';
-    container.style.paddingTop = '10px';
+    // Centrar el resultado
+    container.style.justifyContent = 'center';
+    container.style.paddingTop = '0';
     
     // Mostrar resultado
     resultContainer.style.display = 'block';
