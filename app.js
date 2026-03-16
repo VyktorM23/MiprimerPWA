@@ -49,12 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Precargar la cámara en segundo plano para que esté lista más rápido
+    // Precargar la cámara en segundo plano
     precargarCamara();
 });
 
 function precargarCamara() {
-    // Intentar obtener acceso a la cámara en segundo plano sin mostrarla
+    // Intentar obtener acceso a la cámara en segundo plano
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia && !cameraPermissionGranted) {
         navigator.mediaDevices.getUserMedia({ 
             video: { 
@@ -64,7 +64,7 @@ function precargarCamara() {
             } 
         })
         .then(stream => {
-            // Guardar el stream pero detenerlo inmediatamente después de obtener permiso
+            // Guardar el stream pero detenerlo inmediatamente
             cameraPermissionGranted = true;
             stream.getTracks().forEach(track => track.stop());
             console.log('✅ Permiso de cámara pre-obtenido');
@@ -197,7 +197,7 @@ function volverInicio() {
     videoContainer.style.display = 'none';
     buttonsContainer.style.display = 'flex';
     container.style.justifyContent = 'center';
-    container.style.paddingTop = '120px';
+    container.style.paddingTop = '0';
     
     // Limpiar cualquier overlay residual
     const overlay = document.querySelector('.scanning-overlay');
@@ -266,7 +266,7 @@ async function iniciarEscaneo() {
         container.style.justifyContent = 'flex-start';
         container.style.paddingTop = '0';
         
-        // Configuración de la cámara con resolución original
+        // Configuración de la cámara
         const constraints = {
             video: {
                 facingMode: 'environment',
@@ -275,42 +275,42 @@ async function iniciarEscaneo() {
             }
         };
         
-        // Si ya tenemos permiso, esto será más rápido
+        // Obtener stream de la cámara
         videoStream = await navigator.mediaDevices.getUserMedia(constraints);
         
+        // Asignar stream al video
         video.srcObject = videoStream;
         video.setAttribute('playsinline', true);
         
-        // Reproducir video inmediatamente
-        try {
-            await video.play();
-            console.log('✅ Video reproduciendo');
-            scanningActive = true;
-            // Escaneo inmediato
-            realizarEscaneo();
-            // Continuar con el intervalo
-            scanTimeout = setTimeout(() => {
-                escanearQRConIntervalo();
-            }, SCAN_INTERVAL);
-        } catch (playError) {
-            console.error('Error al reproducir video:', playError);
-            detenerEscaneo();
+        // Esperar a que el video esté listo para reproducir
+        await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                resolve();
+            };
+        });
+        
+        // Reproducir video
+        await video.play();
+        console.log('✅ Video reproduciendo');
+        
+        // Iniciar escaneo
+        scanningActive = true;
+        realizarEscaneo();
+        
+        // Configurar intervalo de escaneo
+        if (scanTimeout) {
+            clearTimeout(scanTimeout);
         }
+        scanTimeout = setTimeout(function loop() {
+            if (!scanningActive) return;
+            realizarEscaneo();
+            scanTimeout = setTimeout(loop, SCAN_INTERVAL);
+        }, SCAN_INTERVAL);
         
     } catch (error) {
         console.error('❌ Error:', error);
         detenerEscaneo();
     }
-}
-
-function escanearQRConIntervalo() {
-    if (!scanningActive) return;
-    
-    realizarEscaneo();
-    
-    scanTimeout = setTimeout(() => {
-        escanearQRConIntervalo();
-    }, SCAN_INTERVAL);
 }
 
 function realizarEscaneo() {
@@ -319,8 +319,10 @@ function realizarEscaneo() {
     }
     
     try {
-        const width = Math.min(video.videoWidth, 640);
-        const height = Math.min(video.videoHeight, 480);
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        
+        if (width === 0 || height === 0) return;
         
         canvas.width = width;
         canvas.height = height;
@@ -374,7 +376,7 @@ function procesarResultado(data) {
     
     videoContainer.style.display = 'none';
     
-    // Parsear datos del QR (formato: {"empleado_id":"27642824","nombre":"Victor Medina"})
+    // Parsear datos del QR
     let nombre = 'No disponible';
     let cedula = 'No disponible';
     
@@ -387,14 +389,12 @@ function procesarResultado(data) {
         console.log('No es JSON válido, usando formato alternativo');
         
         if (data.includes('empleado_id') && data.includes('nombre')) {
-            // Intentar extraer con regex
             const cedulaMatch = data.match(/"empleado_id"\s*:\s*"([^"]+)"/);
             const nombreMatch = data.match(/"nombre"\s*:\s*"([^"]+)"/);
             
             if (cedulaMatch) cedula = cedulaMatch[1];
             if (nombreMatch) nombre = nombreMatch[1];
         } else {
-            // Si no se puede parsear, usar todo el contenido como nombre
             nombre = data;
         }
     }

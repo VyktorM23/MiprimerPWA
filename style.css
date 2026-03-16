@@ -7,12 +7,12 @@
 
 html, body {
     height: 100%;
-    overflow: hidden; /* Evita scroll en toda la aplicación */
+    overflow: hidden;
 }
 
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-    background: #0066B3;  /* Azul hospitalario */
+    background: #0066B3;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -22,7 +22,7 @@ body {
     overflow: hidden;
 }
 
-/* Título fijo en la parte superior */
+/* Título */
 .hospital-title {
     color: white;
     font-size: 48px;
@@ -56,7 +56,6 @@ body {
     margin: 0 auto;
     background: transparent;
     overflow: hidden;
-    transition: justify-content 0.3s ease;
 }
 
 /* Contenedor de botones */
@@ -66,7 +65,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin-top: 60px; /* Espacio para el título */
 }
 
 /* Estilo de los botones */
@@ -104,7 +102,7 @@ body {
     transform: none;
 }
 
-/* Botón secundario (cancelar) */
+/* Botón secundario */
 .btn-secondary {
     background: rgba(255, 255, 255, 0.9);
     color: #0066B3;
@@ -219,7 +217,6 @@ body.scanning-active #video-container {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    position: relative;
     z-index: 20;
 }
 
@@ -289,7 +286,6 @@ body.scanning-active #video-container {
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    position: relative;
     z-index: 20;
 }
 
@@ -332,11 +328,6 @@ body.scanning-active #video-container {
     border-radius: 15px;
     padding: 15px;
     border-left: 5px solid #0066B3;
-    transition: transform 0.2s ease;
-}
-
-.history-item:hover {
-    transform: translateX(5px);
 }
 
 .history-item.entrada {
@@ -390,7 +381,6 @@ body.scanning-active #video-container {
 #result-container {
     width: 100%;
     max-width: 350px;
-    position: relative;
     z-index: 30;
     animation: fadeIn 0.3s ease;
 }
@@ -495,12 +485,8 @@ body.scanning-active #video-container {
 
 /* Animaciones */
 @keyframes scan {
-    0% {
-        top: 0;
-    }
-    100% {
-        top: 100%;
-    }
+    0% { top: 0; }
+    100% { top: 100%; }
 }
 
 @keyframes fadeIn {
@@ -521,36 +507,18 @@ body.scanning-active #video-container {
         padding: 30px 15px 15px;
     }
     
-    .buttons-container {
-        max-width: 260px;
-        margin-top: 50px;
-    }
-    
     .btn {
         padding: 16px 20px;
         font-size: 18px;
     }
     
-    .action-title, .history-title {
+    .action-title {
         font-size: 22px;
     }
     
     .action-btn {
         font-size: 22px !important;
         padding: 18px !important;
-    }
-    
-    .field-value {
-        font-size: 20px;
-    }
-    
-    .result-time {
-        font-size: 28px;
-    }
-    
-    .action-selection-screen,
-    .history-screen {
-        padding: 25px 20px;
     }
     
     .result-header {
@@ -564,6 +532,14 @@ body.scanning-active #video-container {
     .result-footer {
         padding: 20px;
     }
+    
+    .field-value {
+        font-size: 20px;
+    }
+    
+    .result-time {
+        font-size: 28px;
+    }
 }
 
 @media (max-width: 360px) {
@@ -572,17 +548,12 @@ body.scanning-active #video-container {
         padding: 25px 10px 10px;
     }
     
-    .buttons-container {
-        max-width: 240px;
-        margin-top: 40px;
-    }
-    
     .btn {
         padding: 14px 18px;
         font-size: 16px;
     }
     
-    .action-title, .history-title {
+    .action-title {
         font-size: 20px;
     }
     
@@ -597,11 +568,6 @@ body.scanning-active #video-container {
     
     .result-time {
         font-size: 24px;
-    }
-    
-    .action-selection-screen,
-    .history-screen {
-        padding: 20px 15px;
     }
 }
 
