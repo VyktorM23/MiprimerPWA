@@ -1,13 +1,18 @@
-// app.js - Funcionalidad completa de escaneo sin mensajes
+// app.js - Funcionalidad completa de escaneo con registro de asistencia
 let deferredPrompt;
 let videoStream = null;
 let scanningActive = false;
 let scanTimeout = null;
 const SCAN_INTERVAL = 200;
 
+// Estado de la aplicación
+let currentAction = null; // 'entrada' o 'salida'
+let attendanceHistory = []; // Historial de asistencias
+
 // Elementos del DOM
 const scanButton = document.getElementById('scanButton');
 const loginButton = document.getElementById('loginButton');
+const historyButton = document.getElementById('historyButton');
 const videoContainer = document.getElementById('video-container');
 const video = document.getElementById('qr-video');
 const canvas = document.getElementById('qr-canvas');
@@ -15,6 +20,13 @@ const resultContainer = document.getElementById('result-container');
 const scanResult = document.getElementById('scan-result');
 const newScanBtn = document.getElementById('new-scan-btn');
 const cancelScanBtn = document.getElementById('cancel-scan-btn');
+const actionSelectionScreen = document.getElementById('action-selection-screen');
+const entryBtn = document.getElementById('entry-btn');
+const exitBtn = document.getElementById('exit-btn');
+const backFromActionBtn = document.getElementById('back-from-action-btn');
+const historyScreen = document.getElementById('history-screen');
+const historyList = document.getElementById('history-list');
+const backFromHistoryBtn = document.getElementById('back-from-history-btn');
 const body = document.body;
 
 // Inicializar
@@ -22,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ App iniciada');
     configurarBotones();
     registrarServiceWorker();
+    cargarHistorial();
     
     if (typeof jsQR !== 'undefined') {
         console.log('✅ jsQR listo');
@@ -33,13 +46,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function configurarBotones() {
     if (scanButton) {
-        scanButton.addEventListener('click', iniciarEscaneo);
+        scanButton.addEventListener('click', mostrarPantallaAccion);
     }
     
     if (loginButton) {
         loginButton.addEventListener('click', () => {
             alert('Funcionalidad de inicio de sesión en desarrollo');
         });
+    }
+    
+    if (historyButton) {
+        historyButton.addEventListener('click', mostrarHistorial);
+    }
+    
+    if (entryBtn) {
+        entryBtn.addEventListener('click', () => iniciarEscaneoConAccion('entrada'));
+    }
+    
+    if (exitBtn) {
+        exitBtn.addEventListener('click', () => iniciarEscaneoConAccion('salida'));
+    }
+    
+    if (backFromActionBtn) {
+        backFromActionBtn.addEventListener('click', volverInicio);
+    }
+    
+    if (backFromHistoryBtn) {
+        backFromHistoryBtn.addEventListener('click', volverInicio);
     }
     
     if (newScanBtn) {
@@ -49,6 +82,79 @@ function configurarBotones() {
     if (cancelScanBtn) {
         cancelScanBtn.addEventListener('click', detenerEscaneo);
     }
+}
+
+function cargarHistorial() {
+    const historialGuardado = localStorage.getItem('attendanceHistory');
+    if (historialGuardado) {
+        attendanceHistory = JSON.parse(historialGuardado);
+    }
+}
+
+function guardarHistorial() {
+    localStorage.setItem('attendanceHistory', JSON.stringify(attendanceHistory));
+}
+
+function mostrarPantallaAccion() {
+    document.querySelector('.buttons-container').style.display = 'none';
+    actionSelectionScreen.style.display = 'flex';
+    historyScreen.style.display = 'none';
+}
+
+function mostrarHistorial() {
+    document.querySelector('.buttons-container').style.display = 'none';
+    actionSelectionScreen.style.display = 'none';
+    historyScreen.style.display = 'flex';
+    actualizarListaHistorial();
+}
+
+function actualizarListaHistorial() {
+    historyList.innerHTML = '';
+    
+    // Mostrar últimos 5 registros (más recientes primero)
+    const ultimosRegistros = [...attendanceHistory].reverse().slice(0, 5);
+    
+    if (ultimosRegistros.length === 0) {
+        historyList.innerHTML = '<div class="no-history">No hay registros de asistencia</div>';
+        return;
+    }
+    
+    ultimosRegistros.forEach(registro => {
+        const item = document.createElement('div');
+        item.className = `history-item ${registro.accion}`;
+        
+        const fecha = new Date(registro.timestamp);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const horaFormateada = fecha.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
+        item.innerHTML = `
+            <div class="history-empleado">${registro.empleado}</div>
+            <div class="history-accion ${registro.accion}">${registro.accion === 'entrada' ? '🚪 ENTRADA' : '🚶 SALIDA'}</div>
+            <div class="history-fecha">${fechaFormateada} ${horaFormateada}</div>
+        `;
+        
+        historyList.appendChild(item);
+    });
+}
+
+function volverInicio() {
+    actionSelectionScreen.style.display = 'none';
+    historyScreen.style.display = 'none';
+    document.querySelector('.buttons-container').style.display = 'flex';
+}
+
+function iniciarEscaneoConAccion(accion) {
+    currentAction = accion;
+    actionSelectionScreen.style.display = 'none';
+    iniciarEscaneo();
 }
 
 function registrarServiceWorker() {
@@ -199,20 +305,50 @@ function procesarResultado(data) {
     }
     
     videoContainer.style.display = 'none';
+    
+    // Guardar en historial
+    const ahora = new Date();
+    const registro = {
+        empleado: data,
+        accion: currentAction,
+        timestamp: ahora.toISOString()
+    };
+    
+    attendanceHistory.push(registro);
+    guardarHistorial();
+    
+    // Mostrar resultado temporal
+    const fechaFormateada = ahora.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    const horaFormateada = ahora.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    const accionTexto = currentAction === 'entrada' ? 'ENTRADA' : 'SALIDA';
+    const colorAccion = currentAction === 'entrada' ? '#4CAF50' : '#f44336';
+    
     resultContainer.style.display = 'block';
+    scanResult.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <div style="font-size: 24px; font-weight: bold; margin-bottom: 15px; color: ${colorAccion};">${accionTexto} REGISTRADA</div>
+            <div class="qr-content" style="font-size: 20px; margin-bottom: 15px;">${data}</div>
+            <div style="font-size: 18px; margin: 10px 0;">${fechaFormateada}</div>
+            <div style="font-size: 24px; font-weight: bold; color: #0066B3;">${horaFormateada}</div>
+        </div>
+    `;
     
-    let resultHTML = `<div class="qr-content">${data}</div>`;
-    
-    if (esURL(data)) {
-        resultHTML += `<a href="${data}" target="_blank" class="qr-action-btn">🔗 Abrir enlace</a>`;
-    } else if (esTelefono(data)) {
-        const telefono = data.replace(/\D/g, '');
-        resultHTML += `<a href="tel:${telefono}" class="qr-action-btn">📞 Llamar</a>`;
-    } else if (esEmail(data)) {
-        resultHTML += `<a href="mailto:${data}" class="qr-action-btn">📧 Enviar email</a>`;
-    }
-    
-    scanResult.innerHTML = resultHTML;
+    // Auto-retorno después de 3 segundos
+    setTimeout(() => {
+        resultContainer.style.display = 'none';
+        scanButton.style.display = 'block';
+        currentAction = null;
+        volverInicio();
+    }, 3000);
 }
 
 function detenerEscaneo() {
@@ -242,6 +378,8 @@ function detenerEscaneo() {
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
+    currentAction = null;
+    volverInicio();
 }
 
 function resetearEscaneo() {
