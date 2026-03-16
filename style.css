@@ -5,15 +5,21 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+    overflow: hidden; /* Evita scroll en toda la aplicación */
+}
+
 body {
     font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
     background: #0066B3;  /* Azul hospitalario */
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     padding: 0;
     margin: 0;
     position: relative;
+    overflow: hidden;
 }
 
 /* Título fijo en la parte superior */
@@ -34,21 +40,22 @@ body {
     right: 0;
     z-index: 10;
     background: transparent;
-    pointer-events: none; /* Permite hacer clic a través del título */
+    pointer-events: none;
 }
 
 /* Contenedor principal */
 .container {
     width: 100%;
     max-width: 400px;
-    min-height: 100vh;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 120px 20px 40px; /* Padding superior para dejar espacio al título fijo */
+    padding: 120px 20px 40px;
     margin: 0 auto;
     background: transparent;
+    overflow: hidden; /* Evita scroll interno */
 }
 
 /* Contenedor de botones */
@@ -109,7 +116,7 @@ body.scanning-active {
 }
 
 body.scanning-active .hospital-title {
-    display: none; /* Ocultar título cuando se escanea */
+    display: none;
 }
 
 body.scanning-active .container {
@@ -198,161 +205,6 @@ body.scanning-active #video-container {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Resultado del escaneo */
-#result-container {
-    width: 100%;
-    max-width: 350px;
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    animation: fadeIn 0.3s ease;
-    margin-top: 20px;
-}
-
-#result-container h3 {
-    color: #0066B3;
-    font-size: 20px;
-    margin-bottom: 15px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.result-box {
-    background: #f0f8ff;
-    border-radius: 15px;
-    padding: 15px;
-    margin: 15px 0;
-}
-
-.qr-content {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    word-break: break-all;
-    font-family: monospace;
-    border: 1px solid #0066B3;
-    color: #333;
-    font-size: 14px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.qr-action-btn {
-    display: block;
-    padding: 15px;
-    background: #0066B3;
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    margin: 15px 0 5px;
-    font-weight: 600;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.qr-action-btn:hover {
-    background: #004c8c;
-    transform: translateY(-2px);
-}
-
-/* Canvas oculto */
-#qr-canvas {
-    display: none;
-}
-
-/* Botón de instalación */
-#installButton {
-    margin-top: 10px !important;
-    background: white !important;
-    color: #0066B3 !important;
-}
-
-/* Animaciones */
-@keyframes scan {
-    0% {
-        top: 0;
-    }
-    100% {
-        top: 100%;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .hospital-title {
-        font-size: 42px;
-        padding: 30px 15px 15px;
-    }
-    
-    .container {
-        padding: 110px 15px 30px;
-    }
-    
-    .buttons-container {
-        max-width: 260px;
-    }
-    
-    .btn {
-        padding: 16px 20px;
-        font-size: 18px;
-    }
-}
-
-@media (max-width: 360px) {
-    .hospital-title {
-        font-size: 36px;
-        padding: 25px 10px 10px;
-    }
-    
-    .container {
-        padding: 100px 10px 25px;
-    }
-    
-    .buttons-container {
-        max-width: 240px;
-    }
-    
-    .btn {
-        padding: 14px 18px;
-        font-size: 16px;
-    }
-}
-
-/* Soporte para iPhone notch */
-@supports (padding: max(0px)) {
-    .hospital-title {
-        padding-top: max(40px, env(safe-area-inset-top));
-    }
-    
-    body.scanning-active .scanning-instructions {
-        top: max(50px, env(safe-area-inset-top));
-        left: max(20px, env(safe-area-inset-left));
-        right: max(20px, env(safe-area-inset-right));
-    }
-    
-    body.scanning-active .video-controls {
-        bottom: max(40px, env(safe-area-inset-bottom));
-        left: max(20px, env(safe-area-inset-left));
-        right: max(20px, env(safe-area-inset-right));
-    }
-}
-
-/* Añadir estos estilos al final del archivo style.css existente */
-
 /* Pantalla de selección de acción */
 .action-selection-screen {
     width: 100%;
@@ -365,6 +217,8 @@ body.scanning-active #video-container {
     flex-direction: column;
     align-items: center;
     gap: 25px;
+    position: relative;
+    z-index: 20;
 }
 
 .action-title {
@@ -433,6 +287,8 @@ body.scanning-active #video-container {
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    position: relative;
+    z-index: 20;
 }
 
 .history-title {
@@ -447,12 +303,26 @@ body.scanning-active #video-container {
 
 .history-list {
     width: 100%;
-    max-height: 400px;
+    max-height: 300px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 5px;
+}
+
+.history-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.history-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.history-list::-webkit-scrollbar-thumb {
+    background: #0066B3;
+    border-radius: 4px;
 }
 
 .history-item {
@@ -475,7 +345,7 @@ body.scanning-active #video-container {
     border-left-color: #f44336;
 }
 
-.history-empleado {
+.history-nombre {
     font-size: 16px;
     font-weight: 600;
     color: #333;
@@ -514,16 +384,24 @@ body.scanning-active #video-container {
     font-style: italic;
 }
 
-/* Tarjeta de resultado mejorada */
+/* Resultado del escaneo */
+#result-container {
+    width: 100%;
+    max-width: 350px;
+    position: relative;
+    z-index: 30;
+    animation: fadeIn 0.3s ease;
+}
+
 .result-card {
     background: white;
-    border-radius: 20px;
+    border-radius: 30px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .result-header {
-    padding: 20px;
+    padding: 25px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -531,11 +409,11 @@ body.scanning-active #video-container {
 }
 
 .result-action-icon {
-    font-size: 32px;
+    font-size: 36px;
 }
 
 .result-action-text {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: 800;
     color: white;
     text-transform: uppercase;
@@ -543,14 +421,14 @@ body.scanning-active #video-container {
 }
 
 .result-body {
-    padding: 25px;
+    padding: 30px;
     background: #f8f9fa;
 }
 
 .result-field {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 2px solid #e0e0e0;
 }
 
 .result-field:last-child {
@@ -571,20 +449,20 @@ body.scanning-active #video-container {
 
 .field-value {
     display: block;
-    font-size: 20px;
+    font-size: 22px;
     color: #333;
     font-weight: 500;
     word-break: break-word;
 }
 
 .result-time {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: #0066B3;
 }
 
 .result-footer {
-    padding: 20px;
+    padding: 25px;
     background: white;
     border-top: 2px solid #f0f0f0;
 }
@@ -601,8 +479,59 @@ body.scanning-active #video-container {
     background: #004c8c !important;
 }
 
-/* Responsive para nuevas pantallas */
+/* Canvas oculto */
+#qr-canvas {
+    display: none;
+}
+
+/* Botón de instalación */
+#installButton {
+    margin-top: 10px !important;
+    background: white !important;
+    color: #0066B3 !important;
+}
+
+/* Animaciones */
+@keyframes scan {
+    0% {
+        top: 0;
+    }
+    100% {
+        top: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
 @media (max-width: 480px) {
+    .hospital-title {
+        font-size: 42px;
+        padding: 30px 15px 15px;
+    }
+    
+    .container {
+        padding: 110px 15px 30px;
+    }
+    
+    .buttons-container {
+        max-width: 260px;
+    }
+    
+    .btn {
+        padding: 16px 20px;
+        font-size: 18px;
+    }
+    
     .action-title, .history-title {
         font-size: 20px;
     }
@@ -612,24 +541,34 @@ body.scanning-active #video-container {
         padding: 20px !important;
     }
     
-    .history-item {
-        padding: 12px;
-    }
-    
-    .history-empleado {
-        font-size: 14px;
-    }
-    
     .field-value {
         font-size: 18px;
     }
     
     .result-time {
-        font-size: 24px;
+        font-size: 28px;
     }
 }
 
 @media (max-width: 360px) {
+    .hospital-title {
+        font-size: 36px;
+        padding: 25px 10px 10px;
+    }
+    
+    .container {
+        padding: 100px 10px 25px;
+    }
+    
+    .buttons-container {
+        max-width: 240px;
+    }
+    
+    .btn {
+        padding: 14px 18px;
+        font-size: 16px;
+    }
+    
     .action-title, .history-title {
         font-size: 18px;
     }
@@ -644,6 +583,25 @@ body.scanning-active #video-container {
     }
     
     .result-time {
-        font-size: 22px;
+        font-size: 24px;
+    }
+}
+
+/* Soporte para iPhone notch */
+@supports (padding: max(0px)) {
+    .hospital-title {
+        padding-top: max(40px, env(safe-area-inset-top));
+    }
+    
+    body.scanning-active .scanning-instructions {
+        top: max(50px, env(safe-area-inset-top));
+        left: max(20px, env(safe-area-inset-left));
+        right: max(20px, env(safe-area-inset-right));
+    }
+    
+    body.scanning-active .video-controls {
+        bottom: max(40px, env(safe-area-inset-bottom));
+        left: max(20px, env(safe-area-inset-left));
+        right: max(20px, env(safe-area-inset-right));
     }
 }

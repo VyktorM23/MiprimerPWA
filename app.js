@@ -29,7 +29,7 @@ const historyList = document.getElementById('history-list');
 const backFromHistoryBtn = document.getElementById('back-from-history-btn');
 const body = document.body;
 const hospitalTitle = document.querySelector('.hospital-title');
-const backToHomeBtn = document.getElementById('back-to-home-btn');
+const container = document.querySelector('.container');
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -84,16 +84,16 @@ function configurarBotones() {
     if (cancelScanBtn) {
         cancelScanBtn.addEventListener('click', detenerEscaneo);
     }
-    
-    if (backToHomeBtn) {
-        backToHomeBtn.addEventListener('click', volverInicio);
-    }
 }
 
 function cargarHistorial() {
     const historialGuardado = localStorage.getItem('attendanceHistory');
     if (historialGuardado) {
-        attendanceHistory = JSON.parse(historialGuardado);
+        try {
+            attendanceHistory = JSON.parse(historialGuardado);
+        } catch (e) {
+            attendanceHistory = [];
+        }
     }
 }
 
@@ -102,17 +102,21 @@ function guardarHistorial() {
 }
 
 function mostrarPantallaAccion() {
-    hospitalTitle.style.display = 'none'; // Ocultar título
+    hospitalTitle.style.display = 'none';
     document.querySelector('.buttons-container').style.display = 'none';
     actionSelectionScreen.style.display = 'flex';
     historyScreen.style.display = 'none';
+    resultContainer.style.display = 'none';
+    container.style.overflow = 'hidden';
 }
 
 function mostrarHistorial() {
-    hospitalTitle.style.display = 'none'; // Ocultar título
+    hospitalTitle.style.display = 'none';
     document.querySelector('.buttons-container').style.display = 'none';
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'flex';
+    resultContainer.style.display = 'none';
+    container.style.overflow = 'hidden';
     actualizarListaHistorial();
 }
 
@@ -144,7 +148,7 @@ function actualizarListaHistorial() {
         });
         
         item.innerHTML = `
-            <div class="history-empleado">${registro.nombres}</div>
+            <div class="history-nombre">${registro.nombre}</div>
             <div class="history-cedula">C.I: ${registro.cedula}</div>
             <div class="history-accion ${registro.accion}">${registro.accion === 'entrada' ? '🚪 ENTRADA' : '🚶 SALIDA'}</div>
             <div class="history-fecha">${fechaFormateada} ${horaFormateada}</div>
@@ -155,16 +159,30 @@ function actualizarListaHistorial() {
 }
 
 function volverInicio() {
-    hospitalTitle.style.display = 'block'; // Mostrar título solo en inicio
+    hospitalTitle.style.display = 'block';
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'none';
+    resultContainer.style.display = 'none';
+    videoContainer.style.display = 'none';
     document.querySelector('.buttons-container').style.display = 'flex';
+    container.style.overflow = 'hidden';
+    
+    // Limpiar cualquier overlay residual
+    const overlay = document.querySelector('.scanning-overlay');
+    const instructions = document.querySelector('.scanning-instructions');
+    if (overlay) overlay.remove();
+    if (instructions) instructions.remove();
+    body.classList.remove('scanning-active');
+    
+    currentAction = null;
 }
 
 function iniciarEscaneoConAccion(accion) {
     currentAction = accion;
-    hospitalTitle.style.display = 'none'; // Ocultar título
+    hospitalTitle.style.display = 'none';
     actionSelectionScreen.style.display = 'none';
+    historyScreen.style.display = 'none';
+    resultContainer.style.display = 'none';
     iniciarEscaneo();
 }
 
@@ -225,6 +243,7 @@ async function iniciarEscaneo() {
         videoContainer.style.display = 'flex';
         scanButton.style.display = 'none';
         resultContainer.style.display = 'none';
+        container.style.overflow = 'hidden';
         
         video.onloadedmetadata = () => {
             video.play().then(() => {
@@ -317,17 +336,30 @@ function procesarResultado(data) {
     
     videoContainer.style.display = 'none';
     
-    // Parsear datos del QR (asumiendo formato: NOMBRES|CEDULA)
-    let nombres = 'No disponible';
+    // Parsear datos del QR (formato: {"empleado_id":"27642824","nombre":"Victor Medina"})
+    let nombre = 'No disponible';
     let cedula = 'No disponible';
     
-    if (data.includes('|')) {
-        const partes = data.split('|');
-        nombres = partes[0]?.trim() || 'No disponible';
-        cedula = partes[1]?.trim() || 'No disponible';
-    } else {
-        // Si no tiene el formato esperado, usar todo el contenido
-        nombres = data;
+    try {
+        // Intentar parsear como JSON
+        const datos = JSON.parse(data);
+        cedula = datos.empleado_id || 'No disponible';
+        nombre = datos.nombre || 'No disponible';
+    } catch (e) {
+        // Si no es JSON, intentar con formato alternativo
+        console.log('No es JSON válido, usando formato alternativo');
+        
+        if (data.includes('empleado_id') && data.includes('nombre')) {
+            // Intentar extraer con regex
+            const cedulaMatch = data.match(/"empleado_id"\s*:\s*"([^"]+)"/);
+            const nombreMatch = data.match(/"nombre"\s*:\s*"([^"]+)"/);
+            
+            if (cedulaMatch) cedula = cedulaMatch[1];
+            if (nombreMatch) nombre = nombreMatch[1];
+        } else {
+            // Si no se puede parsear, usar todo el contenido como nombre
+            nombre = data;
+        }
     }
     
     // Obtener fecha y hora actual
@@ -345,7 +377,7 @@ function procesarResultado(data) {
     
     // Guardar en historial
     const registro = {
-        nombres: nombres,
+        nombre: nombre,
         cedula: cedula,
         accion: currentAction,
         timestamp: ahora.toISOString()
@@ -357,6 +389,13 @@ function procesarResultado(data) {
     const accionTexto = currentAction === 'entrada' ? 'ENTRADA' : 'SALIDA';
     const colorAccion = currentAction === 'entrada' ? '#4CAF50' : '#f44336';
     
+    // Ocultar todas las otras pantallas
+    hospitalTitle.style.display = 'none';
+    document.querySelector('.buttons-container').style.display = 'none';
+    actionSelectionScreen.style.display = 'none';
+    historyScreen.style.display = 'none';
+    
+    // Mostrar resultado
     resultContainer.style.display = 'block';
     scanResult.innerHTML = `
         <div class="result-card">
@@ -368,7 +407,7 @@ function procesarResultado(data) {
             <div class="result-body">
                 <div class="result-field">
                     <span class="field-label">NOMBRES:</span>
-                    <span class="field-value">${nombres}</span>
+                    <span class="field-value">${nombre}</span>
                 </div>
                 
                 <div class="result-field">
@@ -423,34 +462,11 @@ function detenerEscaneo() {
     
     body.classList.remove('scanning-active');
     
-    hospitalTitle.style.display = 'block'; // Mostrar título
-    scanButton.style.display = 'block';
-    videoContainer.style.display = 'none';
-    resultContainer.style.display = 'none';
-    currentAction = null;
     volverInicio();
 }
 
 function resetearEscaneo() {
     detenerEscaneo();
-}
-
-function esURL(string) {
-    try {
-        const url = new URL(string);
-        return url.protocol === 'http:' || url.protocol === 'https:';
-    } catch {
-        return false;
-    }
-}
-
-function esTelefono(string) {
-    const numeros = string.replace(/\D/g, '');
-    return numeros.length >= 7 && numeros.length <= 15;
-}
-
-function esEmail(string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string);
 }
 
 // PWA Installation
