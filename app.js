@@ -30,6 +30,7 @@ const backFromHistoryBtn = document.getElementById('back-from-history-btn');
 const body = document.body;
 const hospitalTitle = document.querySelector('.hospital-title');
 const container = document.querySelector('.container');
+const buttonsContainer = document.querySelector('.buttons-container');
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
@@ -103,20 +104,24 @@ function guardarHistorial() {
 
 function mostrarPantallaAccion() {
     hospitalTitle.style.display = 'none';
-    document.querySelector('.buttons-container').style.display = 'none';
+    buttonsContainer.style.display = 'none';
     actionSelectionScreen.style.display = 'flex';
     historyScreen.style.display = 'none';
     resultContainer.style.display = 'none';
     container.style.overflow = 'hidden';
+    container.style.justifyContent = 'flex-start';
+    container.style.paddingTop = '20px';
 }
 
 function mostrarHistorial() {
     hospitalTitle.style.display = 'none';
-    document.querySelector('.buttons-container').style.display = 'none';
+    buttonsContainer.style.display = 'none';
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'flex';
     resultContainer.style.display = 'none';
     container.style.overflow = 'hidden';
+    container.style.justifyContent = 'flex-start';
+    container.style.paddingTop = '20px';
     actualizarListaHistorial();
 }
 
@@ -164,8 +169,10 @@ function volverInicio() {
     historyScreen.style.display = 'none';
     resultContainer.style.display = 'none';
     videoContainer.style.display = 'none';
-    document.querySelector('.buttons-container').style.display = 'flex';
+    buttonsContainer.style.display = 'flex';
     container.style.overflow = 'hidden';
+    container.style.justifyContent = 'center';
+    container.style.paddingTop = '120px';
     
     // Limpiar cualquier overlay residual
     const overlay = document.querySelector('.scanning-overlay');
@@ -226,6 +233,7 @@ async function iniciarEscaneo() {
             throw new Error('Cámara no soportada');
         }
         
+        // Configuración original con resolución 1280x720
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
@@ -241,17 +249,24 @@ async function iniciarEscaneo() {
         crearOverlayEscaneo();
         
         videoContainer.style.display = 'flex';
-        scanButton.style.display = 'none';
+        buttonsContainer.style.display = 'none';
         resultContainer.style.display = 'none';
         container.style.overflow = 'hidden';
         
+        // Iniciar escaneo inmediatamente cuando el video esté listo
         video.onloadedmetadata = () => {
             video.play().then(() => {
                 console.log('✅ Video reproduciendo');
                 scanningActive = true;
-                setTimeout(() => {
+                // Escaneo inmediato sin esperar
+                realizarEscaneo();
+                // Continuar con el intervalo
+                scanTimeout = setTimeout(() => {
                     escanearQRConIntervalo();
-                }, 500);
+                }, SCAN_INTERVAL);
+            }).catch(err => {
+                console.error('Error al reproducir video:', err);
+                detenerEscaneo();
             });
         };
         
@@ -263,10 +278,6 @@ async function iniciarEscaneo() {
 
 function escanearQRConIntervalo() {
     if (!scanningActive) return;
-    
-    if (scanTimeout) {
-        clearTimeout(scanTimeout);
-    }
     
     realizarEscaneo();
     
@@ -346,7 +357,6 @@ function procesarResultado(data) {
         cedula = datos.empleado_id || 'No disponible';
         nombre = datos.nombre || 'No disponible';
     } catch (e) {
-        // Si no es JSON, intentar con formato alternativo
         console.log('No es JSON válido, usando formato alternativo');
         
         if (data.includes('empleado_id') && data.includes('nombre')) {
@@ -391,9 +401,13 @@ function procesarResultado(data) {
     
     // Ocultar todas las otras pantallas
     hospitalTitle.style.display = 'none';
-    document.querySelector('.buttons-container').style.display = 'none';
+    buttonsContainer.style.display = 'none';
     actionSelectionScreen.style.display = 'none';
     historyScreen.style.display = 'none';
+    
+    // Ajustar contenedor para resultado
+    container.style.justifyContent = 'flex-start';
+    container.style.paddingTop = '10px';
     
     // Mostrar resultado
     resultContainer.style.display = 'block';
@@ -474,13 +488,13 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     
-    if (!document.getElementById('installButton')) {
+    if (!document.getElementById('installButton') && buttonsContainer) {
         const btn = document.createElement('button');
         btn.id = 'installButton';
         btn.className = 'btn btn-primary';
         btn.textContent = '📲 INSTALAR APP';
         btn.onclick = instalarPWA;
-        document.querySelector('.buttons-container').appendChild(btn);
+        buttonsContainer.appendChild(btn);
     }
 });
 
