@@ -3,44 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Primera PWA - Escáner QR</title>
+    <title>Hospital Ernesto Segundo Paolini</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
-    <!-- Librería jsQR más liviana y confiable -->
+    <!-- Librería jsQR -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>📱 Escáner QR PWA</h1>
-        <p>Escanea códigos QR y ve la información instantáneamente</p>
-        
-        <!-- Tarjeta de estado PWA -->
-        <div class="status-card">
-            <div class="status-item">
-                <span class="status-label">Estado PWA:</span>
-                <span class="status-value" id="pwaStatus">Verificando...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Service Worker:</span>
-                <span class="status-value" id="swStatus">Verificando...</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Modo:</span>
-                <span class="status-value" id="modeStatus">Navegador</span>
-            </div>
+        <!-- Título del hospital -->
+        <div class="hospital-title">
+            HOSPITAL<br>
+            ERNESTO<br>
+            SEGUNDO<br>
+            PAOLINI
         </div>
         
-        <!-- Botón de escaneo principal -->
-        <button id="scanButton" class="btn btn-primary scan-btn">
-            <span class="btn-icon">📷</span>
-            Escanear QR
-        </button>
+        <!-- Botones principales -->
+        <div class="buttons-container">
+            <button id="loginButton" class="btn btn-primary">
+                INICIAR SESION
+            </button>
+            
+            <button id="scanButton" class="btn btn-primary">
+                ESCANEAR
+            </button>
+            
+            <button id="historyButton" class="btn btn-secondary">
+                HISTORIAL
+            </button>
+        </div>
         
-        <!-- Video para escaneo -->
+        <!-- Pantalla de selección de acción (Entrada/Salida) -->
+        <div id="action-selection-screen" class="action-selection-screen" style="display: none;">
+            <h2 class="action-title">SELECCIONE ACCIÓN</h2>
+            <div class="action-buttons">
+                <button id="entry-btn" class="btn action-btn entry-btn">
+                    ENTRADA
+                </button>
+                <button id="exit-btn" class="btn action-btn exit-btn">
+                    SALIDA
+                </button>
+            </div>
+            <button id="back-from-action-btn" class="btn btn-secondary back-btn">
+                ← VOLVER
+            </button>
+        </div>
+        
+        <!-- Pantalla de historial -->
+        <div id="history-screen" class="history-screen" style="display: none;">
+            <h2 class="history-title">ÚLTIMOS REGISTROS</h2>
+            <div id="history-list" class="history-list"></div>
+            <button id="back-from-history-btn" class="btn btn-secondary back-btn">
+                ← VOLVER
+            </button>
+        </div>
+        
+        <!-- Video para escaneo (inicialmente oculto) -->
         <div id="video-container" style="display: none;">
             <video id="qr-video" playsinline></video>
             <canvas id="qr-canvas" style="display: none;"></canvas>
@@ -49,12 +72,11 @@
             </div>
         </div>
         
-        <!-- Resultado del escaneo -->
+        <!-- Resultado del escaneo (inicialmente oculto) -->
         <div id="result-container" style="display: none;">
-            <h3>📄 Resultado del escaneo:</h3>
             <div id="scan-result" class="result-box"></div>
-            <button id="new-scan-btn" class="btn btn-primary">Escanear otro QR</button>
         </div>
+        
     </div>
     
     <script src="app.js"></script>
