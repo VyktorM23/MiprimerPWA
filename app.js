@@ -1,12 +1,13 @@
-// app.js - Sistema de Control de Asistencia RRHH
-
+// app.js - Versión optimizada con mejor rendimiento
 let deferredPrompt;
 let videoStream = null;
 let scanningActive = false;
+let animationFrame = null;
 let scanTimeout = null;
-const SCAN_INTERVAL = 200;
+let lastScanTime = 0;
+const SCAN_INTERVAL = 200; // Escanear cada 200ms para mejor rendimiento
 
-// Elementos del DOM - Escaneo
+// Elementos del DOM
 const scanButton = document.getElementById('scanButton');
 const videoContainer = document.getElementById('video-container');
 const video = document.getElementById('qr-video');
@@ -17,61 +18,30 @@ const newScanBtn = document.getElementById('new-scan-btn');
 const cancelScanBtn = document.getElementById('cancel-scan-btn');
 const body = document.body;
 
-// Elementos del DOM - Tabs
-const tabBtns = document.querySelectorAll('.tab-btn');
-const tabPanels = document.querySelectorAll('.tab-panel');
-
-// Elementos del DOM - Empleados
-const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-const employeeForm = document.getElementById('employee-form');
-const employeeFormElement = document.getElementById('employeeForm');
-const cancelFormBtn = document.getElementById('cancelFormBtn');
-const employeesTable = document.getElementById('employeesTable');
-
-// Elementos del DOM - Registros
-const recordsTable = document.getElementById('recordsTable');
-const filterDate = document.getElementById('filterDate');
-const exportBtn = document.getElementById('exportBtn');
-
 // Inicializar cuando la página cargue
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ DOM cargado - Sistema RRHH');
+    console.log('✅ DOM cargado');
     actualizarEstadosPWA();
     configurarBotones();
-    configurarTabs();
-    cargarEmpleados();
-    cargarRegistros();
     
-    // Establecer fecha por defecto en el filtro
-    if (filterDate) {
-        const today = new Date().toISOString().split('T')[0];
-        filterDate.value = today;
-        filterDate.addEventListener('change', () => cargarRegistros(filterDate.value));
+    // Verificar que jsQR esté disponible
+    if (typeof jsQR !== 'undefined') {
+        console.log('✅ jsQR cargado correctamente');
+        mostrarMensajeCamara('Escáner listo para usar', 'success');
+        habilitarBotonEscaneo();
+    } else {
+        console.error('❌ jsQR no está disponible');
+        mostrarMensajeCamara('Error cargando el escáner', 'error');
     }
 });
 
-// Configurar tabs
-function configurarTabs() {
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.dataset.tab;
-            
-            // Actualizar botones
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Actualizar paneles
-            tabPanels.forEach(panel => panel.classList.remove('active'));
-            document.getElementById(`${tabId}-panel`).classList.add('active');
-            
-            // Recargar datos si es necesario
-            if (tabId === 'employees') {
-                cargarEmpleados();
-            } else if (tabId === 'records') {
-                cargarRegistros(filterDate?.value);
-            }
-        });
-    });
+// Habilitar botón de escaneo
+function habilitarBotonEscaneo() {
+    if (scanButton) {
+        scanButton.disabled = false;
+        scanButton.style.opacity = '1';
+        scanButton.style.cursor = 'pointer';
+    }
 }
 
 // Configurar botones
@@ -87,276 +57,9 @@ function configurarBotones() {
     if (cancelScanBtn) {
         cancelScanBtn.addEventListener('click', detenerEscaneo);
     }
-    
-    if (addEmployeeBtn) {
-        addEmployeeBtn.addEventListener('click', () => {
-            employeeForm.style.display = 'block';
-            addEmployeeBtn.style.display = 'none';
-        });
-    }
-    
-    if (cancelFormBtn) {
-        cancelFormBtn.addEventListener('click', () => {
-            employeeForm.style.display = 'none';
-            addEmployeeBtn.style.display = 'block';
-            employeeFormElement.reset();
-        });
-    }
-    
-    if (employeeFormElement) {
-        employeeFormElement.addEventListener('submit', guardarEmpleado);
-    }
-    
-    if (exportBtn) {
-        exportBtn.addEventListener('click', exportarACSV);
-    }
 }
 
-// ===== FUNCIONES DE EMPLEADOS =====
-
-async function guardarEmpleado(e) {
-    e.preventDefault();
-    
-    const employee = {
-        name: document.getElementById('empName').value.trim(),
-        dni: document.getElementById('empDni').value.trim(),
-        position: document.getElementById('empPosition').value.trim(),
-        department: document.getElementById('empDepartment').value,
-        registeredAt: new Date().toISOString()
-    };
-    
-    try {
-        await addEmployee(employee);
-        alert('✅ Empleado registrado correctamente');
-        employeeForm.style.display = 'none';
-        addEmployeeBtn.style.display = 'block';
-        employeeFormElement.reset();
-        cargarEmpleados();
-    } catch (error) {
-        alert('❌ Error: ' + error);
-    }
-}
-
-async function cargarEmpleados() {
-    try {
-        const employees = await getAllEmployees();
-        mostrarEmpleados(employees);
-    } catch (error) {
-        console.error('Error cargando empleados:', error);
-        employeesTable.innerHTML = '<p class="error">Error al cargar empleados</p>';
-    }
-}
-
-function mostrarEmpleados(employees) {
-    if (!employeesTable) return;
-    
-    if (employees.length === 0) {
-        employeesTable.innerHTML = '<p class="text-center">No hay empleados registrados</p>';
-        return;
-    }
-    
-    let html = '<div class="employee-cards">';
-    employees.forEach(emp => {
-        html += `
-            <div class="employee-card">
-                <div class="employee-info">
-                    <h4>${emp.name}</h4>
-                    <p><strong>DNI:</strong> ${emp.dni}</p>
-                    <p><strong>Cargo:</strong> ${emp.position}</p>
-                    <p><strong>Departamento:</strong> ${emp.department}</p>
-                    <p class="qr-data" style="display: none;">${generateQRData(emp)}</p>
-                </div>
-                <div class="employee-actions">
-                    <button class="btn-small btn-primary" onclick="generarQR(${emp.id})">📱 Generar QR</button>
-                    <button class="btn-small btn-danger" onclick="eliminarEmpleado(${emp.id})">🗑️ Eliminar</button>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    employeesTable.innerHTML = html;
-}
-
-function generateQRData(employee) {
-    return JSON.stringify({
-        id: employee.id,
-        dni: employee.dni,
-        name: employee.name,
-        department: employee.department
-    });
-}
-
-async function generarQR(employeeId) {
-    try {
-        const employee = await getEmployeeById(employeeId);
-        if (!employee) {
-            alert('Empleado no encontrado');
-            return;
-        }
-        
-        const qrData = generateQRData(employee);
-        
-        // Crear modal con QR
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <h3>QR de ${employee.name}</h3>
-                <div id="qrcode-${employee.id}" class="qrcode-container"></div>
-                <p><strong>DNI:</strong> ${employee.dni}</p>
-                <p><strong>Cargo:</strong> ${employee.position}</p>
-                <button class="btn btn-primary" onclick="descargarQR('${qrData}', '${employee.name}')">📥 Descargar QR</button>
-                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cerrar</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        
-        // Generar QR usando QRCode library (cargar dinámicamente)
-        if (typeof QRCode === 'undefined') {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-            script.onload = () => {
-                QRCode.toCanvas(document.getElementById(`qrcode-${employee.id}`), qrData, {
-                    width: 250,
-                    margin: 2
-                });
-            };
-            document.head.appendChild(script);
-        } else {
-            QRCode.toCanvas(document.getElementById(`qrcode-${employee.id}`), qrData, {
-                width: 250,
-                margin: 2
-            });
-        }
-    } catch (error) {
-        alert('Error al generar QR: ' + error);
-    }
-}
-
-function descargarQR(data, name) {
-    // Crear canvas con QR
-    const canvas = document.createElement('canvas');
-    QRCode.toCanvas(canvas, data, { width: 300, margin: 2 }, (error) => {
-        if (error) {
-            alert('Error al generar QR');
-            return;
-        }
-        
-        // Descargar
-        const link = document.createElement('a');
-        link.download = `QR_${name.replace(/\s/g, '_')}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-}
-
-async function eliminarEmpleado(id) {
-    if (!confirm('¿Estás seguro de eliminar este empleado? Se eliminarán también todos sus registros de asistencia.')) {
-        return;
-    }
-    
-    try {
-        await deleteEmployee(id);
-        cargarEmpleados();
-        alert('Empleado eliminado correctamente');
-    } catch (error) {
-        alert('Error al eliminar: ' + error);
-    }
-}
-
-// ===== FUNCIONES DE REGISTROS =====
-
-async function cargarRegistros(fecha = null) {
-    try {
-        let records;
-        if (fecha) {
-            records = await getAttendanceByDate(fecha);
-        } else {
-            records = await getAllAttendanceRecords();
-        }
-        mostrarRegistros(records);
-    } catch (error) {
-        console.error('Error cargando registros:', error);
-        recordsTable.innerHTML = '<p class="error">Error al cargar registros</p>';
-    }
-}
-
-async function mostrarRegistros(records) {
-    if (!recordsTable) return;
-    
-    if (records.length === 0) {
-        recordsTable.innerHTML = '<p class="text-center">No hay registros de asistencia</p>';
-        return;
-    }
-    
-    // Obtener nombres de empleados
-    const employees = await getAllEmployees();
-    const employeeMap = {};
-    employees.forEach(emp => {
-        employeeMap[emp.id] = emp.name;
-    });
-    
-    let html = '<div class="records-list">';
-    records.forEach(record => {
-        const date = new Date(record.timestamp);
-        const timeStr = date.toLocaleTimeString('es-ES');
-        const dateStr = date.toLocaleDateString('es-ES');
-        const typeIcon = record.type === 'entrada' ? '🟢' : '🔴';
-        const typeText = record.type === 'entrada' ? 'ENTRADA' : 'SALIDA';
-        
-        html += `
-            <div class="record-item ${record.type}">
-                <div class="record-icon">${typeIcon}</div>
-                <div class="record-info">
-                    <strong>${employeeMap[record.employeeId] || 'Empleado #' + record.employeeId}</strong>
-                    <span class="record-type">${typeText}</span>
-                    <span class="record-time">${dateStr} - ${timeStr}</span>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    recordsTable.innerHTML = html;
-}
-
-async function exportarACSV() {
-    try {
-        const records = await getAllAttendanceRecords();
-        const employees = await getAllEmployees();
-        const employeeMap = {};
-        employees.forEach(emp => {
-            employeeMap[emp.id] = emp;
-        });
-        
-        let csv = 'Fecha,Hora,Empleado,DNI,Cargo,Departamento,Tipo\n';
-        
-        records.forEach(record => {
-            const emp = employeeMap[record.employeeId];
-            if (emp) {
-                const date = new Date(record.timestamp);
-                csv += `${date.toLocaleDateString()},`;
-                csv += `${date.toLocaleTimeString()},`;
-                csv += `"${emp.name}",`;
-                csv += `${emp.dni},`;
-                csv += `"${emp.position}",`;
-                csv += `"${emp.department}",`;
-                csv += `${record.type}\n`;
-            }
-        });
-        
-        // Descargar
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `asistencia_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-    } catch (error) {
-        alert('Error al exportar: ' + error);
-    }
-}
-
-// ===== FUNCIONES DE ESCANEO =====
-
+// Mostrar mensaje de estado
 function mostrarMensajeCamara(mensaje, tipo = 'info') {
     const mensajeAnterior = document.querySelector('.camera-status');
     if (mensajeAnterior) {
@@ -372,7 +75,9 @@ function mostrarMensajeCamara(mensaje, tipo = 'info') {
     }
 }
 
+// Crear overlay de escaneo
 function crearOverlayEscaneo() {
+    // Eliminar overlay anterior si existe
     const overlayAnterior = document.querySelector('.scanning-overlay');
     if (overlayAnterior) {
         overlayAnterior.remove();
@@ -389,12 +94,13 @@ function crearOverlayEscaneo() {
     
     const instructions = document.createElement('div');
     instructions.className = 'scanning-instructions';
-    instructions.textContent = 'Escanea el QR del empleado';
+    instructions.textContent = 'Coloca el código QR dentro del recuadro';
     
     body.appendChild(overlay);
     body.appendChild(instructions);
 }
 
+// Actualizar estados de PWA
 function actualizarEstadosPWA() {
     const pwaStatus = document.getElementById('pwaStatus');
     const modeStatus = document.getElementById('modeStatus');
@@ -472,49 +178,60 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Detectar instalación
 window.addEventListener('appinstalled', () => {
     alert('¡App instalada correctamente!');
     document.getElementById('installButton')?.remove();
     actualizarEstadosPWA();
 });
 
-// ===== FUNCIÓN PRINCIPAL DE ESCANEO =====
+// ===== FUNCIÓN PRINCIPAL DE ESCANEO OPTIMIZADA =====
 async function iniciarEscaneo() {
     console.log('📱 Iniciando escaneo...');
     
     try {
+        // Verificar soporte de cámara
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('Tu navegador no soporta acceso a cámara');
         }
         
+        // Mostrar loading
         mostrarMensajeCamara('📷 Iniciando cámara...', 'info');
         
+        // Configuración optimizada para móviles
         videoStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
-                width: { ideal: 1920 },
+                width: { ideal: 1920 },  // Resolución ideal
                 height: { ideal: 1080 },
-                aspectRatio: { ideal: 16/9 }
+                aspectRatio: { ideal: 16/9 }  // Mantener proporción
             }
         });
         
         console.log('✅ Permiso de cámara concedido');
         
+        // Configurar video
         video.srcObject = videoStream;
         video.setAttribute('playsinline', true);
         
+        // Activar modo pantalla completa
         body.classList.add('scanning-active');
+        
+        // Crear overlay de escaneo
         crearOverlayEscaneo();
         
+        // Mostrar contenedor de video
         videoContainer.style.display = 'flex';
         scanButton.style.display = 'none';
         resultContainer.style.display = 'none';
         
+        // Esperar a que el video esté listo
         video.onloadedmetadata = () => {
             video.play().then(() => {
                 console.log('✅ Video reproduciendo');
                 scanningActive = true;
                 
+                // Pequeño delay para asegurar que el video esté listo
                 setTimeout(() => {
                     escanearQRConIntervalo();
                 }, 500);
@@ -538,15 +255,19 @@ async function iniciarEscaneo() {
     }
 }
 
+// Escaneo por intervalo (más eficiente que requestAnimationFrame continuo)
 function escanearQRConIntervalo() {
     if (!scanningActive) return;
     
+    // Limpiar timeout anterior
     if (scanTimeout) {
         clearTimeout(scanTimeout);
     }
     
+    // Ejecutar escaneo
     realizarEscaneo();
     
+    // Programar siguiente escaneo
     scanTimeout = setTimeout(() => {
         escanearQRConIntervalo();
     }, SCAN_INTERVAL);
@@ -558,6 +279,10 @@ function realizarEscaneo() {
     }
     
     try {
+        // Limitar tiempo de escaneo para no bloquear
+        const startTime = performance.now();
+        
+        // Configurar canvas con dimensiones reducidas para mejor rendimiento
         const width = Math.min(video.videoWidth, 640);
         const height = Math.min(video.videoHeight, 480);
         
@@ -567,15 +292,23 @@ function realizarEscaneo() {
         const context = canvas.getContext('2d', { willReadFrequently: true });
         context.drawImage(video, 0, 0, width, height);
         
+        // Obtener datos de la imagen
         const imageData = context.getImageData(0, 0, width, height);
         
+        // Escanear QR con jsQR
         const code = jsQR(imageData.data, width, height, {
             inversionAttempts: "dontInvert",
         });
         
         if (code) {
             console.log('✅ QR detectado:', code.data);
-            procesarQR(code.data);
+            procesarResultado(code.data);
+        }
+        
+        // Medir tiempo de escaneo
+        const scanTime = performance.now() - startTime;
+        if (scanTime > 100) {
+            console.log(`⚠️ Escaneo lento: ${scanTime.toFixed(0)}ms`);
         }
         
     } catch (error) {
@@ -583,7 +316,8 @@ function realizarEscaneo() {
     }
 }
 
-async function procesarQR(data) {
+// Procesar resultado del QR
+function procesarResultado(data) {
     // Detener escaneo inmediatamente
     scanningActive = false;
     
@@ -594,7 +328,63 @@ async function procesarQR(data) {
     
     // Detener video
     if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
+        videoStream.getTracks().forEach(track => {
+            track.stop();
+        });
+        videoStream = null;
+    }
+    
+    if (video) {
+        video.srcObject = null;
+    }
+    
+    // Remover overlay de escaneo
+    const overlay = document.querySelector('.scanning-overlay');
+    const instructions = document.querySelector('.scanning-instructions');
+    if (overlay) overlay.remove();
+    if (instructions) instructions.remove();
+    
+    // Desactivar modo pantalla completa
+    body.classList.remove('scanning-active');
+    
+    // Vibrar si es posible
+    if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(200);
+    }
+    
+    // Mostrar resultado inmediatamente
+    videoContainer.style.display = 'none';
+    resultContainer.style.display = 'block';
+    
+    let resultHTML = `<div class="qr-content">${data}</div>`;
+    
+    if (esURL(data)) {
+        resultHTML += `<a href="${data}" target="_blank" class="qr-action-btn">🔗 Abrir enlace</a>`;
+    } else if (esTelefono(data)) {
+        const telefono = data.replace(/\D/g, '');
+        resultHTML += `<a href="tel:${telefono}" class="qr-action-btn">📞 Llamar</a>`;
+    } else if (esEmail(data)) {
+        resultHTML += `<a href="mailto:${data}" class="qr-action-btn">📧 Enviar email</a>`;
+    }
+    
+    scanResult.innerHTML = resultHTML;
+}
+
+// Detener escaneo (cancelar)
+function detenerEscaneo() {
+    console.log('Deteniendo escaneo...');
+    
+    scanningActive = false;
+    
+    if (scanTimeout) {
+        clearTimeout(scanTimeout);
+        scanTimeout = null;
+    }
+    
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => {
+            track.stop();
+        });
         videoStream = null;
     }
     
@@ -608,109 +398,10 @@ async function procesarQR(data) {
     if (overlay) overlay.remove();
     if (instructions) instructions.remove();
     
+    // Desactivar modo pantalla completa
     body.classList.remove('scanning-active');
     
-    // Vibrar
-    if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(200);
-    }
-    
-    // Procesar datos del QR
-    try {
-        const qrData = JSON.parse(data);
-        
-        // Validar que tenga los campos necesarios
-        if (!qrData.id || !qrData.dni || !qrData.name) {
-            throw new Error('QR inválido: Faltan datos del empleado');
-        }
-        
-        // Verificar que el empleado exista en la BD
-        const employee = await getEmployeeById(qrData.id);
-        if (!employee) {
-            throw new Error('Empleado no registrado en el sistema');
-        }
-        
-        // Determinar si es entrada o salida
-        const lastRecord = await getLastEmployeeRecord(employee.id);
-        const recordType = !lastRecord || lastRecord.type === 'salida' ? 'entrada' : 'salida';
-        
-        // Crear registro de asistencia
-        const now = new Date();
-        const record = {
-            employeeId: employee.id,
-            type: recordType,
-            date: now.toISOString().split('T')[0],
-            timestamp: now.getTime()
-        };
-        
-        await addAttendanceRecord(record);
-        
-        // Mostrar resultado exitoso
-        videoContainer.style.display = 'none';
-        resultContainer.style.display = 'block';
-        
-        const icon = recordType === 'entrada' ? '🟢' : '🔴';
-        const typeText = recordType === 'entrada' ? 'ENTRADA' : 'SALIDA';
-        
-        scanResult.innerHTML = `
-            <div class="success-message">
-                <h3>✅ Registro exitoso</h3>
-                <div class="employee-details">
-                    <p><strong>${employee.name}</strong></p>
-                    <p>DNI: ${employee.dni}</p>
-                    <p>Departamento: ${employee.department}</p>
-                    <p class="record-type-badge ${recordType}">${icon} ${typeText} registrada</p>
-                    <p class="record-time">${now.toLocaleTimeString()} - ${now.toLocaleDateString()}</p>
-                </div>
-            </div>
-        `;
-        
-        // Actualizar lista de registros si está visible
-        if (document.getElementById('records-panel').classList.contains('active')) {
-            cargarRegistros(filterDate?.value);
-        }
-        
-    } catch (error) {
-        // Mostrar error
-        videoContainer.style.display = 'none';
-        resultContainer.style.display = 'block';
-        
-        scanResult.innerHTML = `
-            <div class="error-message">
-                <h3>❌ Error</h3>
-                <p>${error.message}</p>
-                <p class="error-details">Asegúrate de escanear un QR válido de empleado</p>
-            </div>
-        `;
-    }
-}
-
-function detenerEscaneo() {
-    console.log('Deteniendo escaneo...');
-    
-    scanningActive = false;
-    
-    if (scanTimeout) {
-        clearTimeout(scanTimeout);
-        scanTimeout = null;
-    }
-    
-    if (videoStream) {
-        videoStream.getTracks().forEach(track => track.stop());
-        videoStream = null;
-    }
-    
-    if (video) {
-        video.srcObject = null;
-    }
-    
-    const overlay = document.querySelector('.scanning-overlay');
-    const instructions = document.querySelector('.scanning-instructions');
-    if (overlay) overlay.remove();
-    if (instructions) instructions.remove();
-    
-    body.classList.remove('scanning-active');
-    
+    // Restaurar UI
     scanButton.style.display = 'block';
     videoContainer.style.display = 'none';
     resultContainer.style.display = 'none';
@@ -718,11 +409,32 @@ function detenerEscaneo() {
     mostrarMensajeCamara('Escáner listo para usar', 'success');
 }
 
+// Resetear escaneo (nuevo escaneo)
 function resetearEscaneo() {
     detenerEscaneo();
+    // Pequeño delay antes de permitir nuevo escaneo
     setTimeout(() => {
         mostrarMensajeCamara('Escáner listo para usar', 'success');
     }, 300);
+}
+
+// Utilidades
+function esURL(string) {
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+function esTelefono(string) {
+    const numeros = string.replace(/\D/g, '');
+    return numeros.length >= 7 && numeros.length <= 15;
+}
+
+function esEmail(string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(string);
 }
 
 // Limpiar al cerrar
@@ -734,8 +446,3 @@ window.addEventListener('beforeunload', () => {
         clearTimeout(scanTimeout);
     }
 });
-
-// Exponer funciones globales para los botones onclick
-window.generarQR = generarQR;
-window.eliminarEmpleado = eliminarEmpleado;
-window.descargarQR = descargarQR;

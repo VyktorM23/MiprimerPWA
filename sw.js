@@ -1,10 +1,9 @@
-const CACHE_NAME = 'rrhh-asistencia-v2';
+const CACHE_NAME = 'pwa-cache-v1';
 const urlsToCache = [
     './',
     './index.html',
     './style.css',
     './app.js',
-    './db.js',
     './manifest.json',
     './icon-72x72.png',
     './icon-96x96.png',
@@ -14,8 +13,7 @@ const urlsToCache = [
     './icon-192x192.png',
     './icon-384x384.png',
     './icon-512x512.png',
-    'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
-    'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js'
+    'https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js'
 ];
 
 self.addEventListener('install', event => {

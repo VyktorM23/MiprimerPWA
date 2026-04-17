@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RRHH Asistencia - Hospital</title>
+    <title>Mi Primera PWA - Escáner QR</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="style.css">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192x192.png">
+    <!-- Librería jsQR más liviana y confiable -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>🏥 RRHH Asistencia</h1>
-        <p>Control de entrada y salida del personal</p>
+        <h1>📱 Escáner QR PWA</h1>
+        <p>Escanea códigos QR y ve la información instantáneamente</p>
         
         <!-- Tarjeta de estado PWA -->
         <div class="status-card">
@@ -33,99 +34,29 @@
             </div>
         </div>
         
-        <!-- Tabs de navegación -->
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="scan">📷 Escanear</button>
-            <button class="tab-btn" data-tab="employees">👥 Empleados</button>
-            <button class="tab-btn" data-tab="records">📋 Registros</button>
-        </div>
+        <!-- Botón de escaneo principal -->
+        <button id="scanButton" class="btn btn-primary scan-btn">
+            <span class="btn-icon">📷</span>
+            Escanear QR
+        </button>
         
-        <!-- Panel de Escaneo -->
-        <div id="scan-panel" class="tab-panel active">
-            <button id="scanButton" class="btn btn-primary scan-btn">
-                <span class="btn-icon">📷</span>
-                Escanear QR de Empleado
-            </button>
-            
-            <div id="video-container" style="display: none;">
-                <video id="qr-video" playsinline></video>
-                <canvas id="qr-canvas" style="display: none;"></canvas>
-                <div class="video-controls">
-                    <button id="cancel-scan-btn" class="btn btn-secondary">Cancelar</button>
-                </div>
-            </div>
-            
-            <div id="result-container" style="display: none;">
-                <h3>Resultado del escaneo:</h3>
-                <div id="scan-result" class="result-box"></div>
-                <button id="new-scan-btn" class="btn btn-primary">Escanear otro</button>
+        <!-- Video para escaneo -->
+        <div id="video-container" style="display: none;">
+            <video id="qr-video" playsinline></video>
+            <canvas id="qr-canvas" style="display: none;"></canvas>
+            <div class="video-controls">
+                <button id="cancel-scan-btn" class="btn btn-secondary">Cancelar</button>
             </div>
         </div>
         
-        <!-- Panel de Empleados -->
-        <div id="employees-panel" class="tab-panel">
-            <button id="addEmployeeBtn" class="btn btn-primary" style="margin-bottom: 15px;">
-                <span class="btn-icon">➕</span>
-                Registrar Nuevo Empleado
-            </button>
-            
-            <div id="employee-form" style="display: none;" class="form-card">
-                <h3>Registrar Empleado</h3>
-                <form id="employeeForm">
-                    <div class="form-group">
-                        <label>Nombre completo:</label>
-                        <input type="text" id="empName" required placeholder="Ej: Juan Pérez">
-                    </div>
-                    <div class="form-group">
-                        <label>DNI / Cédula:</label>
-                        <input type="text" id="empDni" required placeholder="Ej: 12345678">
-                    </div>
-                    <div class="form-group">
-                        <label>Cargo:</label>
-                        <input type="text" id="empPosition" required placeholder="Ej: Médico, Enfermero...">
-                    </div>
-                    <div class="form-group">
-                        <label>Departamento:</label>
-                        <select id="empDepartment" required>
-                            <option value="">Seleccionar...</option>
-                            <option value="Medicina General">Medicina General</option>
-                            <option value="Pediatría">Pediatría</option>
-                            <option value="Cardiología">Cardiología</option>
-                            <option value="Enfermería">Enfermería</option>
-                            <option value="Administración">Administración</option>
-                            <option value="RRHH">Recursos Humanos</option>
-                            <option value="Mantenimiento">Mantenimiento</option>
-                        </select>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" id="cancelFormBtn" class="btn btn-secondary">Cancelar</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div id="employees-list" class="list-container">
-                <h3>Empleados Registrados</h3>
-                <div id="employeesTable"></div>
-            </div>
-        </div>
-        
-        <!-- Panel de Registros de Asistencia -->
-        <div id="records-panel" class="tab-panel">
-            <div class="filters">
-                <input type="date" id="filterDate" class="form-control">
-                <button id="exportBtn" class="btn btn-secondary" style="margin-top: 10px;">
-                    📊 Exportar a CSV
-                </button>
-            </div>
-            <div id="records-list" class="list-container">
-                <h3>Registros de Asistencia</h3>
-                <div id="recordsTable"></div>
-            </div>
+        <!-- Resultado del escaneo -->
+        <div id="result-container" style="display: none;">
+            <h3>📄 Resultado del escaneo:</h3>
+            <div id="scan-result" class="result-box"></div>
+            <button id="new-scan-btn" class="btn btn-primary">Escanear otro QR</button>
         </div>
     </div>
     
-    <script src="db.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
