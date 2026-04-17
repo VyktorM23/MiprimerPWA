@@ -1,7 +1,7 @@
 {
-    "name": "Mi Primera PWA",
-    "short_name": "PWA Test",
-    "description": "Una aplicación web progresiva de prueba",
+    "name": "RRHH Asistencia Hospital",
+    "short_name": "Asistencia",
+    "description": "Sistema de control de asistencia para personal de RRHH",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#ffffff",
