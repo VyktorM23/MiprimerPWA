@@ -1,8 +1,8 @@
-/* style.css - Diseño Midnight Glassmorphism Completo */
+/* style.css - Midnight Glassmorphism Final (Optimizado para Móvil) */
 
 :root {
     --bg-dark: #0f172a;           
-    --bg-card: rgba(30, 41, 59, 0.7); 
+    --bg-card: rgba(30, 41, 59, 0.8); 
     --accent: #0ea5e9;            
     --accent-glow: rgba(14, 165, 233, 0.4);
     --success: #10b981;           
@@ -10,6 +10,9 @@
     --text-main: #f8fafc;         
     --text-dim: #94a3b8;          
     --glass-border: rgba(255, 255, 255, 0.1);
+    
+    --button-gap: 24px; 
+    --card-radius: 28px;
 }
 
 * {
@@ -30,20 +33,13 @@ body {
     overflow: hidden;
 }
 
-.container {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
 /* Pantalla Principal */
 .main-screen {
     padding: 40px 24px;
     display: flex;
     flex-direction: column;
     height: 100%;
+    align-items: center;
 }
 
 .hospital-title {
@@ -53,7 +49,6 @@ body {
     font-size: 28px;
     font-weight: 900;
     letter-spacing: -1px;
-    line-height: 1;
     text-transform: uppercase;
     background: linear-gradient(to bottom, #fff, var(--text-dim));
     -webkit-background-clip: text;
@@ -65,15 +60,17 @@ body {
     content: "⚕";
     display: block;
     font-size: 40px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     -webkit-text-fill-color: var(--accent);
 }
 
-/* --- BOTONES MODERNOS --- */
-.center-buttons {
+/* --- BOTONES --- */
+.center-buttons, .admin-buttons, .action-buttons, .config-buttons {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--button-gap);
+    width: 100%;
+    max-width: 340px;
 }
 
 .btn {
@@ -88,14 +85,10 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    text-transform: uppercase;
 }
 
-.btn:active {
-    transform: scale(0.97);
-    filter: brightness(0.9);
-}
+.btn:active { transform: scale(0.96); }
 
 .btn-login-main, .btn-login, .result-home-btn {
     background: linear-gradient(135deg, var(--accent), #0284c7);
@@ -110,24 +103,13 @@ body {
     backdrop-filter: blur(12px);
 }
 
-.btn-scan-main::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 18px;
-    padding: 2px;
-    background: linear-gradient(135deg, var(--accent), transparent);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-}
-
 .bottom-buttons {
     margin-top: auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 16px;
+    width: 100%;
+    max-width: 340px;
 }
 
 .btn-bottom {
@@ -138,35 +120,29 @@ body {
     border: 1px solid var(--glass-border);
 }
 
-/* --- PANELES --- */
+/* --- PANELES FULLSCREEN --- */
 .fullscreen-panel {
     position: fixed;
     inset: 0;
     background: var(--bg-dark);
     z-index: 100;
-    padding: 60px 24px 30px;
+    padding: 60px 24px;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.4s ease-out;
+    align-items: center;
     overflow-y: auto;
 }
 
-.panel-title {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 30px;
-    text-align: center;
-}
+.panel-title { font-size: 24px; font-weight: 800; margin-bottom: 32px; text-align: center; }
 
 .login-box, .result-card {
     background: var(--bg-card);
     backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 28px;
+    border-radius: var(--card-radius);
     padding: 32px 24px;
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
 }
 
 .login-input {
@@ -181,96 +157,20 @@ body {
     margin-bottom: 16px;
 }
 
-.login-input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-glow);
-}
-
-.admin-menu-container, .action-buttons, .config-buttons {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
 .admin-btn.register-btn, .entry-btn { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-.admin-btn.view-btn { background: rgba(14, 165, 233, 0.15); color: var(--accent); border: 1px solid rgba(14, 165, 233, 0.3); }
 .btn-logout, .exit-btn, .clear-btn { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 .btn-secondary, .cancel-login-btn, .back-btn-full { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--glass-border); }
 
-/* Tablas */
-.table-container {
-    background: var(--bg-card);
-    border-radius: 20px;
-    border: 1px solid var(--glass-border);
-    overflow: hidden;
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.employees-table, .history-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.employees-table th, .history-table th {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 16px;
-    text-align: left;
-    font-size: 12px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-}
-
-.employees-table td, .history-table td {
-    padding: 16px;
-    border-top: 1px solid var(--glass-border);
-    font-size: 14px;
-}
-
-.accion-entrada { color: var(--success) !important; font-weight: bold; }
-.accion-salida { color: var(--danger) !important; font-weight: bold; }
-
-/* Resultado Escaneo */
-.result-header { text-align: center; margin-bottom: 24px; }
-.result-action-text { font-size: 32px; font-weight: 900; letter-spacing: 2px; }
-.field-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
-.field-value { font-size: 18px; font-weight: 600; margin-bottom: 12px; display: block; }
-
-
-/* =========================================
-   NUEVO: ESCÁNER UI CORREGIDO
-========================================= */
-
+/* --- ESCÁNER UI --- */
 body.scanning-active .main-screen,
-body.scanning-active .fullscreen-panel {
-    display: none !important; /* Oculta todo lo demás al escanear */
-}
+body.scanning-active .fullscreen-panel { display: none !important; }
 
-#video-container {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-#qr-video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+#video-container { position: fixed; inset: 0; background: #000; z-index: 1000; }
+#qr-video { width: 100%; height: 100%; object-fit: cover; }
 
 .scanning-overlay {
     position: fixed;
     inset: 0;
-    pointer-events: none;
     z-index: 1002;
     display: flex;
     flex-direction: column;
@@ -281,10 +181,9 @@ body.scanning-active .fullscreen-panel {
 .scanning-frame {
     width: 280px;
     height: 280px;
-    border: 2px solid var(--accent);
-    border-radius: 30px;
+    border: 3px solid var(--accent);
+    border-radius: 32px;
     position: relative;
-    /* Este box-shadow oscurece todo alrededor del recuadro */
     box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.85); 
 }
 
@@ -299,17 +198,19 @@ body.scanning-active .fullscreen-panel {
 
 .scanning-instructions {
     position: fixed;
-    top: 80px;
-    width: 90%;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
     max-width: 350px;
     text-align: center;
     color: white;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 700;
     z-index: 1003;
     background: var(--bg-card);
-    backdrop-filter: blur(10px);
-    padding: 16px 20px;
+    backdrop-filter: blur(12px);
+    padding: 20px;
     border-radius: 20px;
     border: 1px solid var(--glass-border);
 }
@@ -317,24 +218,37 @@ body.scanning-active .fullscreen-panel {
 .video-controls {
     position: fixed;
     bottom: 40px;
-    left: 24px;
-    right: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    max-width: 340px;
     z-index: 1005;
 }
 
+/* BOTÓN CANCELAR REFORZADO */
 #cancel-scan-btn {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--danger);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    backdrop-filter: blur(10px);
-    width: 100%;
+    background: rgba(239, 68, 68, 0.8) !important;
+    color: white !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    height: 60px;
 }
 
+/* --- TABLAS --- */
+.table-container {
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+}
 
-/* =========================================
-   NUEVO: ALERTAS NATIVAS (MODALES) CORREGIDAS
-========================================= */
+.employees-table td, .history-table td { padding: 16px; border-top: 1px solid var(--glass-border); font-size: 14px; }
+.accion-entrada { color: var(--success) !important; font-weight: bold; }
+.accion-salida { color: var(--danger) !important; font-weight: bold; }
 
+/* --- ALERTAS NATIVAS --- */
 .custom-alert {
     position: fixed;
     inset: 0;
@@ -348,66 +262,32 @@ body.scanning-active .fullscreen-panel {
 
 .alert-content {
     background: var(--bg-card);
-    border: 1px solid var(--glass-border);
-    border-radius: 28px;
+    border-radius: var(--card-radius);
     padding: 32px 24px;
     width: 85%;
     max-width: 340px;
     text-align: center;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.alert-icon {
-    font-size: 60px;
-    margin-bottom: 16px;
-}
-
-.alert-message {
-    font-size: 16px;
-    color: var(--text-main);
-    line-height: 1.5;
-    margin-bottom: 24px;
-    font-weight: 500;
+    animation: popIn 0.3s ease-out;
 }
 
 .alert-btn {
     width: 100%;
     height: 54px;
     border-radius: 16px;
-    border: none;
-    background: linear-gradient(135deg, var(--accent), #0284c7);
+    background: var(--accent);
     color: white;
-    font-size: 16px;
+    border: none;
     font-weight: 700;
-    cursor: pointer;
 }
 
-.success-alert .alert-btn { background: var(--success); }
-.error-alert .alert-btn { background: var(--danger); }
+/* Animaciones */
+@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-/* Animaciones extras */
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
-
-@keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes scan {
-    0% { top: 0; }
-    100% { top: 100%; }
-}
-
-/* Área Segura Mobile */
+/* Área Segura Móvil */
 @supports (padding: max(0px)) {
     .main-screen, .fullscreen-panel {
         padding-top: max(40px, env(safe-area-inset-top));
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
     }
-    .scanning-instructions { top: max(60px, env(safe-area-inset-top)); }
-    .video-controls { bottom: max(30px, env(safe-area-inset-bottom)); }
 }
