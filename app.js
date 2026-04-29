@@ -145,6 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
     precargarCamara();
 });
 
+function normalizarCedula(cedula) {
+    if (!cedula) return '';
+    return cedula.toString().replace(/[^0-9]/g, '');
+}
+
 function cargarTodosLosDatos() {
     // Cargar historial
     const historialGuardado = localStorage.getItem('attendanceHistory');
@@ -182,16 +187,6 @@ function cargarTodosLosDatos() {
         }
     } else {
         saveUsers();
-    }
-    
-    // Mostrar mensaje si no hay administradores creados
-    if (currentUserRole === 'super_admin') {
-        const adminsCount = systemUsers.filter(u => u.role === 'admin').length;
-        if (adminsCount === 0) {
-            setTimeout(() => {
-                mostrarAlertaInfo('👑 Bienvenido Super Usuario\n\nNo hay administradores creados aún.\nUse "GESTIONAR USUARIOS" para crear el primer administrador.');
-            }, 500);
-        }
     }
 }
 
@@ -248,16 +243,6 @@ function mostrarAdminMenu() {
     configScreen.style.display = 'none';
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
-    
-    // Mostrar consejo si es superadmin y no hay admins
-    if (currentUserRole === 'super_admin') {
-        const adminsCount = systemUsers.filter(u => u.role === 'admin').length;
-        if (adminsCount === 0) {
-            setTimeout(() => {
-                mostrarAlertaInfo('👑 Panel de Super Usuario\n\n📌 No hay administradores creados.\n📌 Use el botón "GESTIONAR USUARIOS" para crear el primer administrador.\n📌 Los administradores podrán registrar empleados y marcar asistencia.');
-            }, 300);
-        }
-    }
 }
 
 function mostrarGestionUsuarios() {
@@ -731,7 +716,7 @@ function configurarBotones() {
         const cedulaMainBtn = document.createElement('button');
         cedulaMainBtn.id = 'cedulaMainBtn';
         cedulaMainBtn.className = 'btn btn-scan-main';
-        cedulaMainBtn.textContent = '🔢 MARCAR POR CÉDULA';
+        cedulaMainBtn.textContent = 'MARCAR POR CÉDULA';
         cedulaMainBtn.onclick = () => mostrarCedulaScreen();
         centerButtons.appendChild(cedulaMainBtn);
     }
@@ -1058,6 +1043,7 @@ function procesarRegistroEmpleado(qrData, nombre, cedula, institucion, tipo) {
     
     const nuevoEmpleado = {
         cedula: cedula,
+        cedulaNormalizada: normalizarCedula(cedula),
         nombre: nombre,
         institucion: institucion,
         fechaRegistro: new Date().toISOString()
@@ -1083,7 +1069,10 @@ function procesarAsistencia(qrData, nombre, cedula, institucion, tipo) {
         return;
     }
     
-    const empleadoRegistrado = registeredEmployees.find(emp => emp.cedula === cedula);
+    const empleadoRegistrado = registeredEmployees.find(emp => 
+        emp.cedula === cedula || 
+        emp.cedulaNormalizada === normalizarCedula(cedula)
+    );
     
     if (!empleadoRegistrado) {
         mostrarAlertaError(`EMPLEADO NO REGISTRADO\n\nCédula: ${cedula}\n\nDebe registrarse primero en el menú ADMINISTRADOR.`);
@@ -1300,8 +1289,11 @@ function verificarCedula() {
         mostrarAlertaError('Ingrese una cédula válida');
         return;
     }
-    
-    const empleado = registeredEmployees.find(emp => emp.cedula === currentCedula);
+
+    const empleado = registeredEmployees.find(emp => 
+    emp.cedula === currentCedula || 
+    emp.cedulaNormalizada === normalizarCedula(currentCedula)
+    );
     
     if (!empleado) {
         mostrarAlertaError(`EMPLEADO NO REGISTRADO\n\nCédula: ${currentCedula}\n\nDebe registrarse primero en el menú ADMINISTRADOR.`);
