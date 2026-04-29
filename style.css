@@ -1,4 +1,4 @@
-/* style.css - Diseño Midnight Glassmorphism Completo */
+/* style.css - Diseño Midnight Glassmorphism Completo con Super Usuario */
 
 :root {
     --bg-dark: #0f172a;           
@@ -7,6 +7,7 @@
     --accent-glow: rgba(14, 165, 233, 0.4);
     --success: #10b981;           
     --danger: #ef4444;            
+    --warning: #f59e0b;
     --text-main: #f8fafc;         
     --text-dim: #94a3b8;          
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -187,6 +188,13 @@ body {
     box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
+.login-error {
+    color: var(--danger);
+    text-align: center;
+    margin-top: 16px;
+    font-size: 14px;
+}
+
 .admin-menu-container, .action-buttons, .config-buttons {
     width: 100%;
     max-width: 400px;
@@ -196,10 +204,46 @@ body {
     gap: 16px;
 }
 
-.admin-btn.register-btn, .entry-btn { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
-.admin-btn.view-btn { background: rgba(14, 165, 233, 0.15); color: var(--accent); border: 1px solid rgba(14, 165, 233, 0.3); }
-.btn-logout, .exit-btn, .clear-btn { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
-.btn-secondary, .cancel-login-btn, .back-btn-full { background: rgba(255, 255, 255, 0.05); color: var(--text-main); border: 1px solid var(--glass-border); }
+.admin-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-btn {
+    height: 64px;
+    font-weight: 700;
+}
+
+.register-btn, .entry-btn { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(16, 185, 129, 0.3); 
+}
+
+.view-btn { 
+    background: rgba(14, 165, 233, 0.15); 
+    color: var(--accent); 
+    border: 1px solid rgba(14, 165, 233, 0.3); 
+}
+
+.manage-users-btn {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.btn-logout, .exit-btn, .clear-btn { 
+    background: rgba(239, 68, 68, 0.15); 
+    color: var(--danger); 
+    border: 1px solid rgba(239, 68, 68, 0.3); 
+}
+
+.btn-secondary, .cancel-login-btn, .back-btn-full { 
+    background: rgba(255, 255, 255, 0.05); 
+    color: var(--text-main); 
+    border: 1px solid var(--glass-border); 
+}
 
 /* Tablas */
 .table-container {
@@ -211,14 +255,16 @@ body {
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
+    overflow-x: auto;
 }
 
-.employees-table, .history-table {
+.employees-table, .history-table, .users-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 300px;
 }
 
-.employees-table th, .history-table th {
+.employees-table th, .history-table th, .users-table th {
     background: rgba(255, 255, 255, 0.03);
     padding: 16px;
     text-align: left;
@@ -227,29 +273,119 @@ body {
     text-transform: uppercase;
 }
 
-.employees-table td, .history-table td {
+.employees-table td, .history-table td, .users-table td {
     padding: 16px;
     border-top: 1px solid var(--glass-border);
     font-size: 14px;
 }
 
-.accion-entrada { color: var(--success) !important; font-weight: bold; }
-.accion-salida { color: var(--danger) !important; font-weight: bold; }
+.accion-entrada { 
+    color: var(--success) !important; 
+    font-weight: bold; 
+}
+
+.accion-salida { 
+    color: var(--danger) !important; 
+    font-weight: bold; 
+}
+
+.role-superadmin {
+    color: var(--warning);
+    font-weight: bold;
+}
+
+.role-admin {
+    color: var(--accent);
+}
+
+.user-actions {
+    white-space: nowrap;
+}
+
+.btn-icon {
+    background: rgba(255,255,255,0.05);
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    margin: 0 4px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.05);
+}
+
+.btn-edit-user:hover {
+    background: rgba(14, 165, 233, 0.3);
+}
+
+.btn-delete-user:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 40px !important;
+}
 
 /* Resultado Escaneo */
-.result-header { text-align: center; margin-bottom: 24px; }
-.result-action-text { font-size: 32px; font-weight: 900; letter-spacing: 2px; }
-.field-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; }
-.field-value { font-size: 18px; font-weight: 600; margin-bottom: 12px; display: block; }
+.result-header { 
+    text-align: center; 
+    margin-bottom: 24px; 
+    padding: 16px;
+    border-radius: 16px;
+}
 
+.result-action-text { 
+    font-size: 32px; 
+    font-weight: 900; 
+    letter-spacing: 2px; 
+}
+
+.result-body {
+    margin-bottom: 24px;
+}
+
+.result-field {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.field-label { 
+    color: var(--text-dim); 
+    font-size: 12px; 
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.field-value { 
+    font-size: 18px; 
+    font-weight: 600; 
+    display: block;
+}
+
+.result-time {
+    color: var(--accent);
+    font-size: 24px;
+}
+
+.result-footer {
+    margin-top: 16px;
+}
 
 /* =========================================
-   NUEVO: ESCÁNER UI CORREGIDO
+   ESCÁNER UI
 ========================================= */
 
 body.scanning-active .main-screen,
 body.scanning-active .fullscreen-panel {
-    display: none !important; /* Oculta todo lo demás al escanear */
+    display: none !important;
 }
 
 #video-container {
@@ -284,8 +420,7 @@ body.scanning-active .fullscreen-panel {
     border: 2px solid var(--accent);
     border-radius: 30px;
     position: relative;
-    /* Este box-shadow oscurece todo alrededor del recuadro */
-    box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.85); 
+    box-shadow: 0 0 0 4000px rgba(15, 23, 42, 0.85);
 }
 
 .scanning-line {
@@ -330,15 +465,103 @@ body.scanning-active .fullscreen-panel {
     width: 100%;
 }
 
+/* =========================================
+   MODALES Y GESTIÓN DE USUARIOS
+========================================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    width: 100%;
+    max-width: 400px;
+    overflow: hidden;
+    animation: popIn 0.3s ease-out;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.forgot-password-btn {
+    background: transparent !important;
+    border: none !important;
+    color: var(--accent) !important;
+    font-size: 14px !important;
+    height: auto !important;
+    padding: 10px !important;
+}
+
+.forgot-password-btn:hover {
+    text-decoration: underline;
+}
+
+.backup-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: white !important;
+    border: none !important;
+}
 
 /* =========================================
-   NUEVO: ALERTAS NATIVAS (MODALES) CORREGIDAS
+   ALERTAS NATIVAS (MODALES)
 ========================================= */
 
 .custom-alert {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15, 23, 42, 0.95);
     backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
@@ -383,8 +606,13 @@ body.scanning-active .fullscreen-panel {
     cursor: pointer;
 }
 
-.success-alert .alert-btn { background: var(--success); }
-.error-alert .alert-btn { background: var(--danger); }
+.success-alert .alert-btn { 
+    background: linear-gradient(135deg, var(--success), #059669);
+}
+
+.error-alert .alert-btn { 
+    background: linear-gradient(135deg, var(--danger), #dc2626);
+}
 
 /* Animaciones extras */
 @keyframes slideUp {
@@ -410,4 +638,44 @@ body.scanning-active .fullscreen-panel {
     }
     .scanning-instructions { top: max(60px, env(safe-area-inset-top)); }
     .video-controls { bottom: max(30px, env(safe-area-inset-bottom)); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .users-table th, .users-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+    
+    .btn-icon {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .modal-content {
+        margin: 16px;
+    }
+    
+    .hospital-title {
+        font-size: 24px;
+    }
+    
+    .btn {
+        height: 56px;
+        font-size: 15px;
+    }
+}
+
+/* Scroll personalizado */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
 }
