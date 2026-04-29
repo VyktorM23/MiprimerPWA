@@ -16,6 +16,9 @@ let currentUserRole = null;
 let currentCedulaEmployee = null;
 let currentCedula = '';
 
+let vibrationEnabled = true;  // Activado por defecto
+const VIBRATION_DURATION = 200;  // 200 milisegundos
+
 // ========== ESTRUCTURA DE USUARIOS - SOLO SUPER USUARIO ==========
 let systemUsers = [
     {
@@ -137,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     configurarBotones();
     registrarServiceWorker();
     actualizarMenuSegunRol();
+    cargarConfiguracion();
     
     if (typeof jsQR !== 'undefined') {
         console.log('✅ jsQR listo');
@@ -144,6 +148,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     precargarCamara();
 });
+
+function vibrar() {
+    if (vibrationEnabled && window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(VIBRATION_DURATION);
+        console.log('📳 Vibración ejecutada');
+    }
+}
+
+function vibrarDoble() {
+    if (vibrationEnabled && window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate([VIBRATION_DURATION, 100, VIBRATION_DURATION]);
+        console.log('📳 Vibración doble ejecutada');
+    }
+}
+
+function vibrarError() {
+    if (vibrationEnabled && window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate([500, 200, 500]);
+    }
+}
 
 function normalizarCedula(cedula) {
     if (!cedula) return '';
@@ -985,9 +1009,7 @@ function procesarResultado(data) {
     if (instructions) instructions.remove();
     body.classList.remove('scanning-active');
     
-    if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(200);
-    }
+    vibrar();
     
     videoContainer.style.display = 'none';
     
@@ -1048,9 +1070,11 @@ function procesarRegistroEmpleado(qrData, nombre, cedula, institucion, tipo) {
         institucion: institucion,
         fechaRegistro: new Date().toISOString()
     };
-    
+
     registeredEmployees.push(nuevoEmpleado);
     guardarEmpleados();
+
+    vibrar();
     
     mostrarAlertaExito(`EMPLEADO REGISTRADO\n\nNombre: ${nombre}\nCédula: ${cedula}\nInstitución: ${institucion}`);
     mostrarAdminMenu();
@@ -1301,6 +1325,8 @@ function verificarCedula() {
     }
     
     currentCedulaEmployee = empleado;
+
+    vibrar();
     
     // Obtener último registro del empleado
     const registrosEmpleado = attendanceHistory.filter(r => r.cedula === currentCedula);
@@ -1365,6 +1391,8 @@ async function marcarAsistenciaPorCedula(accion) {
     
     attendanceHistory.push(registro);
     guardarHistorial();
+
+    vibrar();
     
     const accionTexto = accion === 'entrada' ? 'ENTRADA' : 'SALIDA';
     const colorAccion = accion === 'entrada' ? '#4CAF50' : '#f44336';
@@ -1412,6 +1440,36 @@ async function marcarAsistenciaPorCedula(accion) {
     currentCedulaEmployee = null;
     currentCedula = '';
     if (cedulaInput) cedulaInput.value = '';
+}
+
+// ========== FUNCIONES DE VIBRACIÓN ==========
+function cargarConfiguracion() {
+    const savedVibration = localStorage.getItem('vibrationEnabled');
+    if (savedVibration !== null) {
+        vibrationEnabled = savedVibration === 'true';
+    }
+    
+    const toggleCheckbox = document.getElementById('vibration-toggle');
+    const vibrationStatus = document.getElementById('vibration-status');
+    
+    if (toggleCheckbox) {
+        toggleCheckbox.checked = vibrationEnabled;
+        if (vibrationStatus) {
+            vibrationStatus.textContent = vibrationEnabled ? 'Activada' : 'Desactivada';
+            vibrationStatus.style.color = vibrationEnabled ? 'var(--success)' : 'var(--danger)';
+        }
+        
+        toggleCheckbox.addEventListener('change', (e) => {
+            vibrationEnabled = e.target.checked;
+            localStorage.setItem('vibrationEnabled', vibrationEnabled);
+            if (vibrationStatus) {
+                vibrationStatus.textContent = vibrationEnabled ? 'Activada' : 'Desactivada';
+                vibrationStatus.style.color = vibrationEnabled ? 'var(--success)' : 'var(--danger)';
+            }
+            // Vibrar al cambiar para feedback
+            if (vibrationEnabled) vibrar();
+        });
+    }
 }
 
 // PWA Installation
