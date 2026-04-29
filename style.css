@@ -243,6 +243,13 @@ body {
     background: rgba(255, 255, 255, 0.05); 
     color: var(--text-main); 
     border: 1px solid var(--glass-border); 
+    margin-top: 15px;
+}
+
+.btn-secondary-cancel{ 
+    background: rgba(255, 255, 255, 0.05); 
+    color: var(--text-main); 
+    border: 1px solid var(--glass-border); 
 }
 
 /* Tablas */
@@ -554,6 +561,21 @@ body.scanning-active .fullscreen-panel {
     border: none !important;
 }
 
+.security-question-box {
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    transition: all 0.3s ease;
+}
+
+.security-question-box:hover {
+    background: rgba(14, 165, 233, 0.15);
+    border-color: rgba(14, 165, 233, 0.5);
+}
+
+#recovered-password {
+    animation: fadeIn 0.5s ease-out;
+}
+
 /* =========================================
    ALERTAS NATIVAS (MODALES)
 ========================================= */
@@ -630,6 +652,17 @@ body.scanning-active .fullscreen-panel {
     100% { top: 100%; }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Área Segura Mobile */
 @supports (padding: max(0px)) {
     .main-screen, .fullscreen-panel {
@@ -678,4 +711,137 @@ body.scanning-active .fullscreen-panel {
 ::-webkit-scrollbar-thumb {
     background: var(--accent);
     border-radius: 3px;
+}
+
+/* =========================================
+   MARCAR POR CÉDULA - TECLADO NUMÉRICO
+========================================= */
+
+.cedula-container {
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    padding: 32px 24px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.cedula-display {
+    margin-bottom: 32px;
+}
+
+.cedula-input-field {
+    width: 100%;
+    height: 70px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0 20px;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 4px;
+    font-family: 'Courier New', monospace;
+}
+
+.cedula-input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-glow);
+}
+
+.numpad {
+    margin-bottom: 32px;
+}
+
+.numpad-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.numpad-btn {
+    flex: 1;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    color: white;
+    font-size: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    font-family: monospace;
+}
+
+.numpad-btn:active {
+    transform: scale(0.95);
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.numpad-delete, .numpad-clear {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    font-size: 24px;
+}
+
+.numpad-delete:active, .numpad-clear:active {
+    background: var(--danger);
+    color: white;
+}
+
+.cedula-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.employee-info-card {
+    background: rgba(14, 165, 233, 0.15);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.employee-info-card .employee-name {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-main);
+}
+
+.employee-info-card .employee-id {
+    font-size: 16px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.employee-info-card .employee-institution {
+    font-size: 14px;
+    color: var(--accent);
+}
+
+.employee-info-card .last-action {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--glass-border);
+    font-size: 14px;
+}
+
+.last-action-entrada {
+    color: var(--success);
+}
+
+.last-action-salida {
+    color: var(--danger);
+}
+
+.last-action-none {
+    color: var(--text-dim);
 }
