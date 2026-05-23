@@ -133,6 +133,16 @@ const cedulaEmployeeInfo = document.getElementById('cedula-employee-info');
 const body = document.body;
 let cameraPermissionGranted = false;
 
+// ========== SPLASH SCREEN ==========
+function ocultarSplash() {
+    const splash = document.getElementById('splash-screen');
+    if (splash) {
+        setTimeout(() => {
+            splash.style.display = 'none';
+        }, 2500);
+    }
+}
+
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('✅ App iniciada con Super Usuario');
@@ -148,6 +158,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     precargarCamara();
 });
+
+// Ocultar splash cuando la página esté completamente cargada
+window.addEventListener('load', () => {
+    ocultarSplash();
+});
+
+// También ocultar si el DOM está listo antes
+setTimeout(() => {
+    const splash = document.getElementById('splash-screen');
+    if (splash && splash.style.display !== 'none') {
+        splash.style.display = 'none';
+    }
+}, 3000);
 
 function vibrar() {
     if (vibrationEnabled && window.navigator && window.navigator.vibrate) {
