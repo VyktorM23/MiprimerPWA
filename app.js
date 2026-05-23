@@ -734,7 +734,7 @@ function configurarBotones() {
         });
     }
 
-    // ========== NUEVO: BOTÓN MARCAR POR CÉDULA ==========
+    // ========== BOTÓN MARCAR POR CÉDULA ==========
     const centerButtons = document.querySelector('.center-buttons');
     if (centerButtons && !document.getElementById('cedulaMainBtn')) {
         const cedulaMainBtn = document.createElement('button');
@@ -745,21 +745,30 @@ function configurarBotones() {
         centerButtons.appendChild(cedulaMainBtn);
     }
 
-    // Eventos del teclado numérico
-    document.querySelectorAll('.numpad-btn[data-num]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const numero = btn.getAttribute('data-num');
-            if (numero) agregarNumeroCedula(numero);
+    // Eventos del input de cédula (teclado nativo)
+    if (cedulaInput) {
+        // Validar que solo se ingresen números
+        cedulaInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+            // Filtrar solo números
+            value = value.replace(/[^0-9]/g, '');
+            // Limitar a 15 dígitos
+            if (value.length > 15) {
+                value = value.slice(0, 15);
+            }
+            cedulaInput.value = value;
+            currentCedula = value;
         });
-    });
-
-    document.querySelectorAll('.numpad-delete').forEach(btn => {
-        btn.addEventListener('click', borrarUltimoCedula);
-    });
-
-    document.querySelectorAll('.numpad-clear').forEach(btn => {
-        btn.addEventListener('click', limpiarCedula);
-    });
+        
+        // Prevenir caracteres no numéricos en tiempo real
+        cedulaInput.addEventListener('keypress', (e) => {
+            const charCode = e.which ? e.which : e.keyCode;
+            // Permitir solo números (códigos 48-57) y teclas de control
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                e.preventDefault();
+            }
+        });
+    }
 
     // Botones de la pantalla cédula
     if (cedulaVerifyBtn) cedulaVerifyBtn.addEventListener('click', verificarCedula);
@@ -1280,6 +1289,10 @@ function mostrarCedulaScreen() {
     currentCedulaEmployee = null;
     if (cedulaInput) cedulaInput.value = '';
     cedulaScreen.style.display = 'flex';
+    // Enfocar automáticamente el input para abrir el teclado
+    setTimeout(() => {
+        if (cedulaInput) cedulaInput.focus();
+    }, 100);
 }
 
 function cerrarCedulaScreen() {
@@ -1291,32 +1304,18 @@ function cerrarCedulaScreen() {
     mostrarPantallaPrincipal();
 }
 
-function agregarNumeroCedula(numero) {
-    if (currentCedula.length < 15) {
-        currentCedula += numero;
-        if (cedulaInput) cedulaInput.value = currentCedula;
-    }
-}
-
-function borrarUltimoCedula() {
-    currentCedula = currentCedula.slice(0, -1);
-    if (cedulaInput) cedulaInput.value = currentCedula;
-}
-
-function limpiarCedula() {
-    currentCedula = '';
-    if (cedulaInput) cedulaInput.value = '';
-}
-
 function verificarCedula() {
+    // Obtener el valor actual del input
+    currentCedula = cedulaInput ? cedulaInput.value : '';
+    
     if (!currentCedula || currentCedula.trim() === '') {
         mostrarAlertaError('Ingrese una cédula válida');
         return;
     }
 
     const empleado = registeredEmployees.find(emp => 
-    emp.cedula === currentCedula || 
-    emp.cedulaNormalizada === normalizarCedula(currentCedula)
+        emp.cedula === currentCedula || 
+        emp.cedulaNormalizada === normalizarCedula(currentCedula)
     );
     
     if (!empleado) {

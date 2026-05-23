@@ -714,7 +714,7 @@ body.scanning-active .fullscreen-panel {
 }
 
 /* =========================================
-   MARCAR POR CÉDULA - TECLADO NUMÉRICO
+   MARCAR POR CÉDULA - VERSIÓN CON TECLADO NATIVO
 ========================================= */
 
 .cedula-container {
@@ -753,45 +753,11 @@ body.scanning-active .fullscreen-panel {
     box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
-.numpad {
-    margin-bottom: 32px;
-}
-
-.numpad-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-}
-
-.numpad-btn {
-    flex: 1;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    color: white;
-    font-size: 28px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.1s ease;
-    font-family: monospace;
-}
-
-.numpad-btn:active {
-    transform: scale(0.95);
-    background: var(--accent);
-    border-color: var(--accent);
-}
-
-.numpad-delete, .numpad-clear {
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--danger);
-    font-size: 24px;
-}
-
-.numpad-delete:active, .numpad-clear:active {
-    background: var(--danger);
-    color: white;
+.cedula-input-field::placeholder {
+    font-size: 16px;
+    letter-spacing: normal;
+    color: var(--text-dim);
+    font-weight: normal;
 }
 
 .cedula-actions {
