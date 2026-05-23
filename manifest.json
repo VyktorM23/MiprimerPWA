@@ -1,7 +1,7 @@
 {
-    "name": "Mi Primera PWA",
-    "short_name": "PWA Test",
-    "description": "Una aplicación web progresiva de prueba",
+    "name": "HOSPITAL ASISTENCIA",
+    "short_name": "ASISTENCIA",
+    "description": "App de asistencia para el hospital Dr. Ernesto Segundo Paolini",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#ffffff",
