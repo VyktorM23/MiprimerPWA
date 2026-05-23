@@ -667,9 +667,9 @@ body.scanning-active .fullscreen-panel {
     width: auto;
     height: auto;
     margin-bottom: 30px;
-    border-radius: 20px;
+    border-radius: 100px;
     box-shadow: 0 10px 40px rgba(14, 165, 233, 0.3);
-    animation: zoomIn 0.6s ease-out;
+    animation: zoomIn 1s ease-out;
 }
 
 .splash-text {
