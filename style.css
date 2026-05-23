@@ -1,4 +1,4 @@
-/* style.css - Diseño Midnight Glassmorphism Completo con Super Usuario */
+/* style.css - Diseño Midnight Glassmorphism Completo con Bottom Navigation */
 
 :root {
     --bg-dark: #0f172a;           
@@ -11,6 +11,7 @@
     --text-main: #f8fafc;         
     --text-dim: #94a3b8;          
     --glass-border: rgba(255, 255, 255, 0.1);
+    --bottom-nav-bg: rgba(30, 41, 59, 0.9);
 }
 
 * {
@@ -45,6 +46,8 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    position: relative;
+    padding-bottom: 90px;
 }
 
 .hospital-title {
@@ -75,6 +78,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    flex: 1;
 }
 
 .btn {
@@ -124,19 +128,101 @@ body {
     mask-composite: exclude;
 }
 
-.bottom-buttons {
-    margin-top: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+/* =========================================
+   BOTTOM NAVIGATION BAR - ESTILOS PRINCIPALES
+========================================= */
+
+.bottom-nav {
+    position: absolute;
+    bottom: 20px;
+    left: 16px;
+    right: 16px;
+    background: var(--bottom-nav-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 8px;
+    z-index: 100;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.btn-bottom {
-    height: 54px;
-    background: rgba(255, 255, 255, 0.05);
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
     color: var(--text-dim);
-    font-size: 13px;
-    border: 1px solid var(--glass-border);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 4px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.nav-icon {
+    font-size: 22px;
+    transition: transform 0.2s ease;
+}
+
+.nav-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.nav-item:active {
+    transform: scale(0.95);
+}
+
+.nav-item:active .nav-icon {
+    transform: scale(0.9);
+}
+
+/* Estados activos y hover */
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.nav-back {
+    color: var(--accent);
+}
+
+.nav-item.nav-home {
+    color: var(--success);
+}
+
+.nav-item.nav-back:hover,
+.nav-item.nav-home:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Ajustes para pantallas de historial y resultado */
+.bottom-nav-history,
+.bottom-nav-result {
+    position: relative;
+    margin-top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 20px 16px 20px 16px;
+    width: auto;
+}
+
+/* Configuración específica para pantallas con bottom nav integrado */
+.config-buttons {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
 }
 
 /* --- PANELES --- */
@@ -263,6 +349,11 @@ body {
     max-width: 500px;
     margin: 0 auto;
     overflow-x: auto;
+}
+
+.history-table-container {
+    max-height: 60vh;
+    overflow-y: auto;
 }
 
 .employees-table, .history-table, .users-table {
@@ -651,7 +742,7 @@ body.scanning-active .fullscreen-panel {
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    animation: fadeOut 1s ease-out forwards;
+    animation: fadeOutSplash 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     animation-delay: 5s;
 }
 
@@ -701,135 +792,11 @@ body.scanning-active .fullscreen-panel {
     height: 100%;
     background: linear-gradient(90deg, var(--accent), var(--success));
     border-radius: 10px;
-    animation: loading 1.8s ease-out forwards;
-}
-
-@keyframes loading {
-    0% { width: 0%; }
-    30% { width: 30%; }
-    60% { width: 70%; }
-    100% { width: 100%; }
-}
-
-@keyframes zoomIn {
-    from {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.02);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        visibility: visible;
-    }
-    to {
-        opacity: 0;
-        visibility: hidden;
-    }
-}
-
-/* Animaciones extras */
-@keyframes slideUp {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-}
-
-@keyframes popIn {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes scan {
-    0% { top: 0; }
-    100% { top: 100%; }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Área Segura Mobile */
-@supports (padding: max(0px)) {
-    .main-screen, .fullscreen-panel {
-        padding-top: max(40px, env(safe-area-inset-top));
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
-    }
-    .scanning-instructions { top: max(60px, env(safe-area-inset-top)); }
-    .video-controls { bottom: max(30px, env(safe-area-inset-bottom)); }
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-    .users-table th, .users-table td {
-        padding: 8px 6px;
-        font-size: 11px;
-    }
-    
-    .btn-icon {
-        padding: 4px 6px;
-        font-size: 12px;
-    }
-    
-    .modal-content {
-        margin: 16px;
-    }
-    
-    .hospital-title {
-        font-size: 24px;
-    }
-    
-    .btn {
-        height: 56px;
-        font-size: 15px;
-    }
-    
-    .splash-image {
-        max-width: 140px;
-        max-height: 140px;
-    }
-    
-    .splash-text {
-        font-size: 14px;
-    }
-}
-
-/* Scroll personalizado */
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-dark);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--accent);
-    border-radius: 3px;
+    animation: loading 2s ease-out forwards;
 }
 
 /* =========================================
-   MARCAR POR CÉDULA - VERSIÓN CON TECLADO NATIVO
+   MARCAR POR CÉDULA
 ========================================= */
 
 .cedula-container {
@@ -1002,4 +969,145 @@ input:checked + .toggle-slider {
 
 input:checked + .toggle-slider:before {
     transform: translateX(24px);
+}
+
+/* Animaciones */
+@keyframes loading {
+    0% { width: 0%; }
+    30% { width: 30%; }
+    60% { width: 70%; }
+    100% { width: 100%; }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes fadeOutSplash {
+    0% {
+        opacity: 1;
+        visibility: visible;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    100% { top: 100%; }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Área Segura Mobile */
+@supports (padding: max(0px)) {
+    .main-screen, .fullscreen-panel {
+        padding-top: max(40px, env(safe-area-inset-top));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+    .bottom-nav {
+        bottom: max(20px, env(safe-area-inset-bottom));
+        left: max(16px, env(safe-area-inset-left));
+        right: max(16px, env(safe-area-inset-right));
+    }
+    .scanning-instructions { top: max(60px, env(safe-area-inset-top)); }
+    .video-controls { bottom: max(30px, env(safe-area-inset-bottom)); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .users-table th, .users-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+    
+    .btn-icon {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .modal-content {
+        margin: 16px;
+    }
+    
+    .hospital-title {
+        font-size: 24px;
+    }
+    
+    .btn {
+        height: 56px;
+        font-size: 15px;
+    }
+    
+    .splash-image {
+        max-width: 140px;
+        max-height: 140px;
+    }
+    
+    .splash-text {
+        font-size: 14px;
+    }
+    
+    .nav-icon {
+        font-size: 18px;
+    }
+    
+    .nav-label {
+        font-size: 10px;
+    }
+    
+    .bottom-nav {
+        padding: 8px 12px;
+    }
+}
+
+/* Scroll personalizado */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
 }

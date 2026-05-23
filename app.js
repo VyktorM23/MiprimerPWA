@@ -139,7 +139,7 @@ function ocultarSplash() {
     if (splash) {
         setTimeout(() => {
             splash.style.display = 'none';
-        }, 2500);
+        }, 2600);
     }
 }
 
@@ -170,7 +170,7 @@ setTimeout(() => {
     if (splash && splash.style.display !== 'none') {
         splash.style.display = 'none';
     }
-}, 3000);
+}, 3500);
 
 function vibrar() {
     if (vibrationEnabled && window.navigator && window.navigator.vibrate) {
@@ -303,7 +303,7 @@ function actualizarTablaUsuarios() {
     usersTableBody.innerHTML = '';
     
     if (systemUsers.length === 0) {
-        usersTableBody.innerHTML = '<tr><td colspan="5" class="no-data">No hay usuarios registrados</td></tr>';
+        usersTableBody.innerHTML = '<tr><td colspan="5" class="no-data">No hay usuarios registrados</td><tr>';
         return;
     }
     
@@ -1286,7 +1286,7 @@ function puedeMarcarAsistencia(cedula, accionDeseada) {
         if (ultimaAccion === 'entrada') {
             return { 
                 allowed: false, 
-                message: `Ya marcó ENTRADA hoy a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nDebe marcar SALIDA antes de una nueva ENTRADA.`
+                message: `Ya marcó ENTRADA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nDebe marcar SALIDA antes de una nueva ENTRADA.`
             };
         }
         return { allowed: true };
@@ -1296,7 +1296,7 @@ function puedeMarcarAsistencia(cedula, accionDeseada) {
         if (ultimaAccion === 'salida') {
             return { 
                 allowed: false, 
-                message: `Ya marcó SALIDA hoy a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nLa próxima acción debe ser ENTRADA.`
+                message: `Ya marcó SALIDA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nLa próxima acción debe ser ENTRADA.`
             };
         }
         return { allowed: true };

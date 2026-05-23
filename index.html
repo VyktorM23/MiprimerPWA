@@ -27,7 +27,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="splash-screen">
         <div class="splash-content">
-            <img id="splash-logo" src="icons/hospital-logo.png" alt="Hospital Logo" class="splash-image" onerror="this.src='icon-192x192.png'">
+            <img id="splash-logo" src="hospital-logo.png" alt="Hospital Logo" class="splash-image">
             <div class="splash-loader">
                 <div class="loader-bar"></div>
             </div>
@@ -36,8 +36,8 @@
         </div>
     </div>
     
-    <div class="container">
-        <!-- Pantalla principal -->
+    <div class="container" id="app-container">
+        <!-- Pantalla principal con Bottom Navigation -->
         <div id="main-screen" class="main-screen">
             <div class="hospital-title">
                 HOSPITAL<br>
@@ -53,14 +53,20 @@
                 <button id="scanButton" class="btn btn-scan-main">
                     ESCANEAR
                 </button>
+                <button id="cedulaMainBtn" class="btn btn-scan-main">
+                    MARCAR POR CÉDULA
+                </button>
             </div>
             
-            <div class="bottom-buttons">
-                <button id="historyButton" class="btn btn-bottom history-bottom-btn">
-                    HISTORIAL
+            <!-- BOTTOM NAVIGATION BAR -->
+            <div class="bottom-nav">
+                <button id="historyNavBtn" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-label">HISTORIAL</span>
                 </button>
-                <button id="configButton" class="btn btn-bottom config-bottom-btn">
-                    CONFIGURACIÓN
+                <button id="configNavBtn" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">CONFIGURACIÓN</span>
                 </button>
             </div>
         </div>
@@ -107,7 +113,9 @@
         
         <!-- Pantalla de CONFIGURACIÓN -->
         <div id="config-screen" class="fullscreen-panel" style="display: none;">
-            <h2 class="panel-title">CONFIGURACIÓN</h2>
+            <div class="config-header">
+                <h2 class="panel-title">CONFIGURACIÓN</h2>
+            </div>
             <div class="config-buttons">
                 <button id="clear-data-btn" class="btn config-btn clear-btn">
                     LIMPIAR DATOS
@@ -126,9 +134,16 @@
                     </label>
                 </div>
             </div>
-            <button id="back-from-config-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-config">
+                <button id="backFromConfigBtn" class="nav-item nav-back">
+                    <span class="nav-icon">←</span>
+                    <span class="nav-label">VOLVER</span>
+                </button>
+                <button id="homeFromConfigBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Pantalla de selección de acción (Entrada/Salida) -->
@@ -142,9 +157,16 @@
                     SALIDA
                 </button>
             </div>
-            <button id="back-from-action-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-action">
+                <button id="backFromActionBtn" class="nav-item nav-back">
+                    <span class="nav-icon">←</span>
+                    <span class="nav-label">VOLVER</span>
+                </button>
+                <button id="homeFromActionBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Pantalla de lista de empleados -->
@@ -163,15 +185,22 @@
                     </tbody>
                 </table>
             </div>
-            <button id="back-from-employees-list-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-employees">
+                <button id="backFromEmployeesBtn" class="nav-item nav-back">
+                    <span class="nav-icon">←</span>
+                    <span class="nav-label">VOLVER</span>
+                </button>
+                <button id="homeFromEmployeesBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Pantalla de historial -->
         <div id="history-screen" class="fullscreen-panel" style="display: none;">
             <h2 class="panel-title panel-title-top">ÚLTIMOS REGISTROS</h2>
-            <div class="table-container">
+            <div class="table-container history-table-container">
                 <table class="history-table">
                     <thead>
                         <tr>
@@ -186,9 +215,12 @@
                     </tbody>
                 </table>
             </div>
-            <button id="back-from-history-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-history">
+                <button id="homeFromHistoryBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Pantalla de GESTIÓN DE USUARIOS (solo Super Usuario) -->
@@ -215,9 +247,16 @@
                     ➕ CREAR NUEVO ADMINISTRADOR
                 </button>
             </div>
-            <button id="back-from-users-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-users">
+                <button id="backFromUsersBtn" class="nav-item nav-back">
+                    <span class="nav-icon">←</span>
+                    <span class="nav-label">VOLVER</span>
+                </button>
+                <button id="homeFromUsersBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Modal para crear/editar usuario -->
@@ -269,7 +308,7 @@
             </div>
         </div>
         
-        <!-- Modal de RECUPERACIÓN DE CONTRASEÑA con pregunta de seguridad -->
+        <!-- Modal de RECUPERACIÓN DE CONTRASEÑA -->
         <div id="recovery-modal" class="modal-overlay" style="display: none;">
             <div class="modal-content" style="max-width: 450px;">
                 <div class="modal-header">
@@ -277,7 +316,6 @@
                     <button id="close-recovery-modal-btn" class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <!-- Paso 1: Ingresar usuario -->
                     <div id="recovery-step1">
                         <p style="margin-bottom: 16px; color: #94a3b8;">Ingrese su nombre de usuario para comenzar la recuperación</p>
                         <div class="input-group">
@@ -289,8 +327,6 @@
                             <button id="cancel-recovery-btn" class="btn btn-secondary">CANCELAR</button>
                         </div>
                     </div>
-                    
-                    <!-- Paso 2: Pregunta de seguridad -->
                     <div id="recovery-step2" style="display: none;">
                         <p style="margin-bottom: 16px; color: #94a3b8;">Responda la siguiente pregunta de seguridad:</p>
                         <div class="input-group">
@@ -305,8 +341,6 @@
                             <button id="back-to-step1-btn" class="btn btn-secondary">← VOLVER</button>
                         </div>
                     </div>
-                    
-                    <!-- Paso 3: Mostrar contraseña -->
                     <div id="recovery-step3" style="display: none;">
                         <p style="margin-bottom: 16px; color: #94a3b8; text-align: center;">¡Verificación exitosa!</p>
                         <div id="recovered-password"></div>
@@ -318,7 +352,7 @@
             </div>
         </div>
 
-        <!-- Pantalla de MARCAR POR CÉDULA - Versión con teclado nativo -->
+        <!-- Pantalla de MARCAR POR CÉDULA -->
         <div id="cedula-screen" class="fullscreen-panel" style="display: none;">
             <h2 class="panel-title">MARCAR ASISTENCIA</h2>
             <div class="cedula-container">
@@ -332,7 +366,6 @@
                            maxlength="15"
                            autocomplete="off">
                 </div>
-                
                 <div class="cedula-actions">
                     <button id="cedula-verify-btn" class="btn btn-login">VERIFICAR</button>
                     <button id="cedula-cancel-btn" class="btn btn-secondary-cancel">CANCELAR</button>
@@ -351,9 +384,16 @@
                     ❌ SALIDA
                 </button>
             </div>
-            <button id="cedula-back-btn" class="btn btn-secondary back-btn-full">
-                ← VOLVER
-            </button>
+            <div class="bottom-nav bottom-nav-cedula">
+                <button id="cedulaBackBtn" class="nav-item nav-back">
+                    <span class="nav-icon">←</span>
+                    <span class="nav-label">VOLVER</span>
+                </button>
+                <button id="cedulaHomeBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
         <!-- Video para escaneo -->
@@ -368,6 +408,12 @@
         <!-- Resultado del escaneo -->
         <div id="result-container" class="fullscreen-panel" style="display: none;">
             <div id="scan-result" class="result-box"></div>
+            <div class="bottom-nav bottom-nav-result">
+                <button id="resultHomeBtn" class="nav-item nav-home">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-label">INICIO</span>
+                </button>
+            </div>
         </div>
         
     </div>
