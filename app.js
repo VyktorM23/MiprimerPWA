@@ -103,18 +103,30 @@ const closeRecoveryModalBtn = document.getElementById('close-recovery-modal-btn'
 // Botones configuración
 const clearDataBtn = document.getElementById('clear-data-btn');
 const aboutBtn = document.getElementById('about-btn');
-const backFromConfigBtn = document.getElementById('back-from-config-btn');
+const backFromConfigBtn = document.getElementById('backFromConfigBtn');
+const homeFromConfigBtn = document.getElementById('homeFromConfigBtn');
 
 // Botones acción
 const entryBtn = document.getElementById('entry-btn');
 const exitBtn = document.getElementById('exit-btn');
-const backFromActionBtn = document.getElementById('back-from-action-btn');
+const backFromActionBtn = document.getElementById('backFromActionBtn');
+const homeFromActionBtn = document.getElementById('homeFromActionBtn');
 
 // Botones lista empleados
-const backFromEmployeesListBtn = document.getElementById('back-from-employees-list-btn');
+const backFromEmployeesBtn = document.getElementById('backFromEmployeesBtn');
+const homeFromEmployeesBtn = document.getElementById('homeFromEmployeesBtn');
 
 // Botones historial
-const backFromHistoryBtn = document.getElementById('back-from-history-btn');
+const homeFromHistoryBtn = document.getElementById('homeFromHistoryBtn');
+
+// Botones gestión usuarios
+const backFromUsersNavBtn = document.getElementById('backFromUsersBtn');
+const homeFromUsersBtn = document.getElementById('homeFromUsersBtn');
+
+// Botones cédula
+const cedulaBackBtn = document.getElementById('cedulaBackBtn');
+const cedulaHomeBtn = document.getElementById('cedulaHomeBtn');
+const resultHomeBtn = document.getElementById('resultHomeBtn');
 
 // Botones escaneo
 const cancelScanBtn = document.getElementById('cancel-scan-btn');
@@ -127,8 +139,11 @@ const cedulaVerifyBtn = document.getElementById('cedula-verify-btn');
 const cedulaCancelBtn = document.getElementById('cedula-cancel-btn');
 const cedulaEntryBtn = document.getElementById('cedula-entry-btn');
 const cedulaExitBtn = document.getElementById('cedula-exit-btn');
-const cedulaBackBtn = document.getElementById('cedula-back-btn');
 const cedulaEmployeeInfo = document.getElementById('cedula-employee-info');
+
+// Botones nav principales
+const historyNavBtn = document.getElementById('historyNavBtn');
+const configNavBtn = document.getElementById('configNavBtn');
 
 const body = document.body;
 let cameraPermissionGranted = false;
@@ -260,6 +275,8 @@ function mostrarPantallaPrincipal() {
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
     videoContainer.style.display = 'none';
+    cedulaScreen.style.display = 'none';
+    cedulaActionScreen.style.display = 'none';
     isLoggedIn = false;
     currentUser = null;
     currentUserRole = null;
@@ -275,6 +292,8 @@ function mostrarLogin() {
     configScreen.style.display = 'none';
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
+    cedulaScreen.style.display = 'none';
+    cedulaActionScreen.style.display = 'none';
     usernameInput.value = '';
     passwordInput.value = '';
     loginError.style.display = 'none';
@@ -290,6 +309,8 @@ function mostrarAdminMenu() {
     configScreen.style.display = 'none';
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
+    cedulaScreen.style.display = 'none';
+    cedulaActionScreen.style.display = 'none';
 }
 
 function mostrarGestionUsuarios() {
@@ -303,7 +324,7 @@ function actualizarTablaUsuarios() {
     usersTableBody.innerHTML = '';
     
     if (systemUsers.length === 0) {
-        usersTableBody.innerHTML = '<tr><td colspan="5" class="no-data">No hay usuarios registrados</td><tr>';
+        usersTableBody.innerHTML = '<tr><td colspan="5" class="no-data">No hay usuarios registrados</td></tr>';
         return;
     }
     
@@ -615,6 +636,8 @@ function mostrarConfiguracion() {
     historyScreen.style.display = 'none';
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
+    cedulaScreen.style.display = 'none';
+    cedulaActionScreen.style.display = 'none';
 }
 
 function ocultarTodasPantallas() {
@@ -628,20 +651,125 @@ function ocultarTodasPantallas() {
     userManagementScreen.style.display = 'none';
     resultContainer.style.display = 'none';
     videoContainer.style.display = 'none';
+    cedulaScreen.style.display = 'none';
+    cedulaActionScreen.style.display = 'none';
 }
 
 function configurarBotones() {
+    // Botones principales
     loginButton.addEventListener('click', mostrarLogin);
     scanButton.addEventListener('click', () => {
         ocultarTodasPantallas();
         actionSelectionScreen.style.display = 'flex';
     });
-    historyButton.addEventListener('click', () => {
-        ocultarTodasPantallas();
-        mostrarHistorial();
-    });
-    configButton.addEventListener('click', mostrarConfiguracion);
     
+    // BOTONES DE NAVEGACIÓN INFERIOR
+    if (historyNavBtn) {
+        historyNavBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarHistorial();
+        });
+    }
+    
+    if (configNavBtn) {
+        configNavBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarConfiguracion();
+        });
+    }
+    
+    // Botones de CONFIGURACIÓN
+    if (backFromConfigBtn) {
+        backFromConfigBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    if (homeFromConfigBtn) {
+        homeFromConfigBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones de ACCIÓN
+    if (backFromActionBtn) {
+        backFromActionBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    if (homeFromActionBtn) {
+        homeFromActionBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones de LISTA DE EMPLEADOS
+    if (backFromEmployeesBtn) {
+        backFromEmployeesBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarAdminMenu();
+        });
+    }
+    
+    if (homeFromEmployeesBtn) {
+        homeFromEmployeesBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones de HISTORIAL
+    if (homeFromHistoryBtn) {
+        homeFromHistoryBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones de GESTIÓN DE USUARIOS
+    if (backFromUsersNavBtn) {
+        backFromUsersNavBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarAdminMenu();
+        });
+    }
+    
+    if (homeFromUsersBtn) {
+        homeFromUsersBtn.addEventListener('click', () => {
+            ocultarTodasPantallas();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones de CÉDULA
+    if (cedulaBackBtn) {
+        cedulaBackBtn.addEventListener('click', () => {
+            cedulaActionScreen.style.display = 'none';
+            mostrarCedulaScreen();
+        });
+    }
+    
+    if (cedulaHomeBtn) {
+        cedulaHomeBtn.addEventListener('click', () => {
+            cerrarCedulaScreen();
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botón de resultado (home)
+    if (resultHomeBtn) {
+        resultHomeBtn.addEventListener('click', () => {
+            resultContainer.style.display = 'none';
+            mostrarPantallaPrincipal();
+        });
+    }
+    
+    // Botones existentes
     doLoginBtn.addEventListener('click', hacerLogin);
     cancelLoginBtn.addEventListener('click', mostrarPantallaPrincipal);
     if (forgotPasswordBtn) {
@@ -680,7 +808,6 @@ function configurarBotones() {
         }
     });
     aboutBtn.addEventListener('click', mostrarAcercaDe);
-    backFromConfigBtn.addEventListener('click', mostrarPantallaPrincipal);
     
     entryBtn.addEventListener('click', () => {
         currentAction = 'entrada';
@@ -692,14 +819,6 @@ function configurarBotones() {
         ocultarTodasPantallas();
         iniciarEscaneo();
     });
-    backFromActionBtn.addEventListener('click', mostrarPantallaPrincipal);
-    
-    backFromEmployeesListBtn.addEventListener('click', () => {
-        ocultarTodasPantallas();
-        mostrarAdminMenu();
-    });
-    
-    backFromHistoryBtn.addEventListener('click', mostrarPantallaPrincipal);
     
     if (backFromUsersBtn) {
         backFromUsersBtn.addEventListener('click', () => {
@@ -757,7 +876,7 @@ function configurarBotones() {
         });
     }
 
-    // ========== BOTÓN MARCAR POR CÉDULA ==========
+    // Botón MARCAR POR CÉDULA (si no existe, crearlo)
     const centerButtons = document.querySelector('.center-buttons');
     if (centerButtons && !document.getElementById('cedulaMainBtn')) {
         const cedulaMainBtn = document.createElement('button');
@@ -766,16 +885,15 @@ function configurarBotones() {
         cedulaMainBtn.textContent = 'MARCAR POR CÉDULA';
         cedulaMainBtn.onclick = () => mostrarCedulaScreen();
         centerButtons.appendChild(cedulaMainBtn);
+    } else if (document.getElementById('cedulaMainBtn')) {
+        document.getElementById('cedulaMainBtn').onclick = () => mostrarCedulaScreen();
     }
 
     // Eventos del input de cédula (teclado nativo)
     if (cedulaInput) {
-        // Validar que solo se ingresen números
         cedulaInput.addEventListener('input', (e) => {
             let value = e.target.value;
-            // Filtrar solo números
             value = value.replace(/[^0-9]/g, '');
-            // Limitar a 15 dígitos
             if (value.length > 15) {
                 value = value.slice(0, 15);
             }
@@ -783,23 +901,16 @@ function configurarBotones() {
             currentCedula = value;
         });
         
-        // Prevenir caracteres no numéricos en tiempo real
         cedulaInput.addEventListener('keypress', (e) => {
             const charCode = e.which ? e.which : e.keyCode;
-            // Permitir solo números (códigos 48-57) y teclas de control
             if (charCode > 31 && (charCode < 48 || charCode > 57)) {
                 e.preventDefault();
             }
         });
     }
 
-    // Botones de la pantalla cédula
     if (cedulaVerifyBtn) cedulaVerifyBtn.addEventListener('click', verificarCedula);
     if (cedulaCancelBtn) cedulaCancelBtn.addEventListener('click', cerrarCedulaScreen);
-    if (cedulaBackBtn) cedulaBackBtn.addEventListener('click', () => {
-        cedulaActionScreen.style.display = 'none';
-        mostrarCedulaScreen();
-    });
     if (cedulaEntryBtn) cedulaEntryBtn.addEventListener('click', () => marcarAsistenciaPorCedula('entrada'));
     if (cedulaExitBtn) cedulaExitBtn.addEventListener('click', () => marcarAsistenciaPorCedula('salida'));
 }
@@ -876,7 +987,7 @@ function actualizarTablaHistorial() {
     const ultimosRegistros = [...attendanceHistory].reverse().slice(0, 50);
     
     if (ultimosRegistros.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="4" class="no-data">No hay registros de asistencia</td></tr>';
+        tableBody.innerHTML = '<td><td colspan="4" class="no-data">No hay registros de asistencia</td></tr>';
         return;
     }
     
@@ -901,7 +1012,7 @@ function actualizarTablaHistorial() {
             <td style="font-weight: 500;">${registro.nombre}</td>
             <td>${registro.cedula}</td>
             <td class="${accionClass}">${accionTexto}</td>
-            <td style="font-size: 12px; color: #666;">${fechaFormateada}<br>${horaFormateada}</td>
+            <td style="font-size: 12px;">${fechaFormateada}<br>${horaFormateada}</td>
         `;
         tableBody.appendChild(row);
     });
@@ -1141,6 +1252,15 @@ function procesarAsistencia(qrData, nombre, cedula, institucion, tipo) {
     const fechaFormateada = ahora.toLocaleDateString('es-ES');
     const horaFormateada = ahora.toLocaleTimeString('es-ES');
     
+    // Validar si puede marcar esta acción
+    const validacion = puedeMarcarAsistencia(cedula, currentAction);
+    
+    if (!validacion.allowed) {
+        mostrarAlertaError(validacion.message);
+        mostrarPantallaPrincipal();
+        return;
+    }
+    
     const registro = {
         nombre: nombreFinal,
         cedula: cedula,
@@ -1178,16 +1298,42 @@ function procesarAsistencia(qrData, nombre, cedula, institucion, tipo) {
                     <span class="field-value result-time">${horaFormateada}</span>
                 </div>
             </div>
-            <div class="result-footer">
-                <button id="back-to-home-btn" class="btn result-home-btn">← VOLVER AL INICIO</button>
-            </div>
         </div>
     `;
+}
+
+function puedeMarcarAsistencia(cedula, accionDeseada) {
+    const registrosEmpleado = attendanceHistory.filter(r => r.cedula === cedula);
     
-    document.getElementById('back-to-home-btn').addEventListener('click', () => {
-        resultContainer.style.display = 'none';
-        mostrarPantallaPrincipal();
-    });
+    if (registrosEmpleado.length === 0) {
+        if (accionDeseada === 'entrada') return { allowed: true };
+        if (accionDeseada === 'salida') return { allowed: false, message: 'No tiene registros previos. Debe marcar ENTRADA primero.' };
+    }
+    
+    const ultimoRegistro = registrosEmpleado[registrosEmpleado.length - 1];
+    const ultimaAccion = ultimoRegistro.accion;
+    
+    if (accionDeseada === 'entrada') {
+        if (ultimaAccion === 'entrada') {
+            return { 
+                allowed: false, 
+                message: `Ya marcó ENTRADA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nDebe marcar SALIDA antes de una nueva ENTRADA.`
+            };
+        }
+        return { allowed: true };
+    }
+    
+    if (accionDeseada === 'salida') {
+        if (ultimaAccion === 'salida') {
+            return { 
+                allowed: false, 
+                message: `Ya marcó SALIDA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nLa próxima acción debe ser ENTRADA.`
+            };
+        }
+        return { allowed: true };
+    }
+    
+    return { allowed: true };
 }
 
 function mostrarAlertaError(mensaje) {
@@ -1203,6 +1349,7 @@ function mostrarAlertaError(mensaje) {
     document.body.appendChild(alerta);
     alerta.querySelector('.alert-btn').addEventListener('click', () => alerta.remove());
     setTimeout(() => { if (alerta.parentNode) alerta.remove(); }, 5000);
+    vibrarError();
 }
 
 function mostrarAlertaExito(mensaje) {
@@ -1218,6 +1365,7 @@ function mostrarAlertaExito(mensaje) {
     document.body.appendChild(alerta);
     alerta.querySelector('.alert-btn').addEventListener('click', () => alerta.remove());
     setTimeout(() => { if (alerta.parentNode) alerta.remove(); }, 4000);
+    vibrar();
 }
 
 function mostrarAlertaInfo(mensaje) {
@@ -1268,43 +1416,6 @@ function detenerEscaneo() {
     }
 }
 
-// ========== FUNCIONES PARA VALIDAR ASISTENCIA ==========
-function puedeMarcarAsistencia(cedula, accionDeseada) {
-    // Obtener el último registro del empleado
-    const registrosEmpleado = attendanceHistory.filter(r => r.cedula === cedula);
-    
-    if (registrosEmpleado.length === 0) {
-        // Si no tiene registros, puede marcar entrada
-        if (accionDeseada === 'entrada') return { allowed: true };
-        if (accionDeseada === 'salida') return { allowed: false, message: 'No tiene registros previos. Debe marcar ENTRADA primero.' };
-    }
-    
-    const ultimoRegistro = registrosEmpleado[registrosEmpleado.length - 1];
-    const ultimaAccion = ultimoRegistro.accion;
-    
-    if (accionDeseada === 'entrada') {
-        if (ultimaAccion === 'entrada') {
-            return { 
-                allowed: false, 
-                message: `Ya marcó ENTRADA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nDebe marcar SALIDA antes de una nueva ENTRADA.`
-            };
-        }
-        return { allowed: true };
-    }
-    
-    if (accionDeseada === 'salida') {
-        if (ultimaAccion === 'salida') {
-            return { 
-                allowed: false, 
-                message: `Ya marcó SALIDA a las ${new Date(ultimoRegistro.timestamp).toLocaleTimeString('es-ES')}\nLa próxima acción debe ser ENTRADA.`
-            };
-        }
-        return { allowed: true };
-    }
-    
-    return { allowed: true };
-}
-
 // ========== FUNCIONES PARA MARCAR POR CÉDULA ==========
 function mostrarCedulaScreen() {
     ocultarTodasPantallas();
@@ -1312,7 +1423,6 @@ function mostrarCedulaScreen() {
     currentCedulaEmployee = null;
     if (cedulaInput) cedulaInput.value = '';
     cedulaScreen.style.display = 'flex';
-    // Enfocar automáticamente el input para abrir el teclado
     setTimeout(() => {
         if (cedulaInput) cedulaInput.focus();
     }, 100);
@@ -1328,7 +1438,6 @@ function cerrarCedulaScreen() {
 }
 
 function verificarCedula() {
-    // Obtener el valor actual del input
     currentCedula = cedulaInput ? cedulaInput.value : '';
     
     if (!currentCedula || currentCedula.trim() === '') {
@@ -1347,10 +1456,8 @@ function verificarCedula() {
     }
     
     currentCedulaEmployee = empleado;
-
     vibrar();
     
-    // Obtener último registro del empleado
     const registrosEmpleado = attendanceHistory.filter(r => r.cedula === currentCedula);
     const ultimoRegistro = registrosEmpleado.length > 0 ? registrosEmpleado[registrosEmpleado.length - 1] : null;
     
@@ -1389,12 +1496,10 @@ async function marcarAsistenciaPorCedula(accion) {
         return;
     }
     
-    // Validar si puede marcar esta acción
     const validacion = puedeMarcarAsistencia(currentCedulaEmployee.cedula, accion);
     
     if (!validacion.allowed) {
         mostrarAlertaError(validacion.message);
-        // Regresar a la pantalla de acción para que pueda elegir la correcta
         cedulaActionScreen.style.display = 'flex';
         return;
     }
@@ -1408,12 +1513,11 @@ async function marcarAsistenciaPorCedula(accion) {
         cedula: currentCedulaEmployee.cedula,
         accion: accion,
         timestamp: ahora.toISOString(),
-        metodo: 'cedula' // Para saber que fue marcado por cédula
+        metodo: 'cedula'
     };
     
     attendanceHistory.push(registro);
     guardarHistorial();
-
     vibrar();
     
     const accionTexto = accion === 'entrada' ? 'ENTRADA' : 'SALIDA';
@@ -1447,18 +1551,9 @@ async function marcarAsistenciaPorCedula(accion) {
                     <span class="field-value">Marcado por cédula</span>
                 </div>
             </div>
-            <div class="result-footer">
-                <button id="back-to-home-from-cedula" class="btn result-home-btn">← VOLVER AL INICIO</button>
-            </div>
         </div>
     `;
     
-    document.getElementById('back-to-home-from-cedula').addEventListener('click', () => {
-        resultContainer.style.display = 'none';
-        cerrarCedulaScreen();
-    });
-    
-    // Limpiar variables
     currentCedulaEmployee = null;
     currentCedula = '';
     if (cedulaInput) cedulaInput.value = '';
@@ -1488,7 +1583,6 @@ function cargarConfiguracion() {
                 vibrationStatus.textContent = vibrationEnabled ? 'Activada' : 'Desactivada';
                 vibrationStatus.style.color = vibrationEnabled ? 'var(--success)' : 'var(--danger)';
             }
-            // Vibrar al cambiar para feedback
             if (vibrationEnabled) vibrar();
         });
     }
